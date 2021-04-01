@@ -1,5 +1,5 @@
 import React, { useReducer, useState } from 'react';
-import { Action, ActionType } from '../../types';
+import { ContainerAction, ContainerActionType } from '../../types';
 import Loom from '../Loom/Loom';
 
 interface ContainerState {
@@ -16,15 +16,15 @@ const initialState : ContainerState = {
     treadleCount: 4
 };
 
-function reducer(state: ContainerState, action: Action) {
+function reducer(state: ContainerState, action: ContainerAction) {
     switch(action.type) {
-        case ActionType.SET_WARPCOUNT:
+        case ContainerActionType.SET_WARPCOUNT:
             return {...state, warpCount: action.warpCount};
-        case ActionType.SET_WEFTCOUNT:
+        case ContainerActionType.SET_WEFTCOUNT:
             return {...state, weftCount: action.weftCount};
-        case ActionType.SET_HARNESSCOUNT:
+        case ContainerActionType.SET_HARNESSCOUNT:
             return {...state, harnessCount: action.harnessCount};
-        case ActionType.SET_TREADLECOUNT:
+        case ContainerActionType.SET_TREADLECOUNT:
             return {...state, treadleCount: action.treadleCount};
         default:
             throw new Error();
@@ -43,10 +43,10 @@ const Container = () => {
             <div>
                 <form onSubmit={e => {
                     e.preventDefault();
-                    dispatch({type: ActionType.SET_WARPCOUNT, warpCount: inputWarpCount})
-                    dispatch({type: ActionType.SET_WEFTCOUNT, weftCount: inputWeftCount})
-                    dispatch({type: ActionType.SET_HARNESSCOUNT, harnessCount: inputHarnessCount})
-                    dispatch({type: ActionType.SET_TREADLECOUNT, treadleCount: inputTreadleCount})
+                    dispatch({type: ContainerActionType.SET_WARPCOUNT, warpCount: inputWarpCount})
+                    dispatch({type: ContainerActionType.SET_WEFTCOUNT, weftCount: inputWeftCount})
+                    dispatch({type: ContainerActionType.SET_HARNESSCOUNT, harnessCount: inputHarnessCount})
+                    dispatch({type: ContainerActionType.SET_TREADLECOUNT, treadleCount: inputTreadleCount})
                     }
                 }>
                     <label htmlFor="warp count">Warp Count:</label>

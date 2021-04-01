@@ -7,8 +7,6 @@ interface ILoom {
     harnessConnections: Array<Harness>;
     treadlingInstructions: Array<Treadle>;
     tieup: Map<Treadle, Harness>;
-
-
 }
 
 // class Loom implements ILoom {
