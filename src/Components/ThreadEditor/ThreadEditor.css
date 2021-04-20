@@ -1,0 +1,49 @@
+.ThreadContainer{
+    display: flex;
+    height: 6em;
+    position: relative;
+    margin-bottom: 0.5em;
+    align-items: center;
+}
+
+.Thread{
+    width:1em;
+    height: 100%;
+}
+
+.Thread:hover{
+    /* filter: brightness(180%); */
+    border: 1px dotted white;
+}
+
+.Thread.selected {
+    border: 1px solid white;
+}
+
+.ThreadAttributeDesigner {
+    width: 100%;
+    height: 4em;
+}
+
+.ColorPicker {
+    border: none;
+    width: 100%;
+    height: 3em;
+    margin: .5em 0;
+}
+
+.LockBtn {
+    width: 100%;
+}
+
+.AddThreadButton {
+    height: 1.7em;
+    width: 1.7em;
+    border-radius: 100%;
+    border: 1px solid white;
+    font-size: 1em;
+    text-align: center;
+    color: white;
+    background-color: transparent;
+    margin-left: 4px;
+}

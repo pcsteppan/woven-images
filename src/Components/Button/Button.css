@@ -1,8 +1,12 @@
 .button {
-    background-color: white;
-    border: 1px solid black;
+    background-color: black;
+    border: 1px dotted gray;
 }
 
 .isActive {
-    background-color: black;
+    background-color: gray;
+}
+
+.button:hover {
+    border: 1px solid red;
 }

@@ -1,0 +1,32 @@
+.FileListItem {
+    clear: both;
+}
+
+.FileName {
+    display: inline;
+    vertical-align: middle;
+}
+
+.OverwriteBtn, .LoadBtn, .SaveBtn {
+    float: right;
+}
+
+.OverwriteBtn {
+    border-left: none;
+}
+
+.SaveBtn {
+    width: 100%;
+    clear: both;
+    margin: 1em 0;
+}
+
+.SaveLoadContainer {
+    overflow-y: scroll;
+    max-height: 30vh;
+    border: 1px solid white;
+}
+
+.SaveLoadContainer .PanelContent{
+    border: none !important; 
+}

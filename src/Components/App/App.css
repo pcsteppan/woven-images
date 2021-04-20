@@ -1,8 +1,16 @@
-*{
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
-body{
+body {
   min-height: 100vh;
+  background-color: black;
+  color: whitesmoke;
+  padding: 1em 2em;
+}
+
+.App {
+  height: 100%;
 }

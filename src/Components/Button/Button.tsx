@@ -1,17 +1,32 @@
-import React, { MouseEventHandler } from 'react';
+import { threadId } from 'node:worker_threads';
+import React, { CSSProperties, MouseEventHandler } from 'react';
+import { Thread, ThreadDataSource } from '../../types';
 import './Button.css';
 
 interface ButtonProps {
-    value: boolean,
+    styleDataSource?: ThreadDataSource,
+    value?: boolean,
     row: number,
     col: number,
-    onClickHandler(row: number, col: number) : (...args: any) => void;
+    cellSize: number | {width: number, height: number},
+    thread?: Thread,
+    onClickHandler: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 const Button = (props: ButtonProps) => {
+    const style : CSSProperties = {
+        gridRow: props.row+1,
+        gridColumn: props.col+1
+    }
+
+    if(props.thread) {
+        style["backgroundColor"] = props.thread.dataSource.color;
+        console.log(style);
+    }
+
     return <div className={"button " + (props.value ? "isActive" : "")}
-                style={{gridRow: props.row+1, gridColumn: props.col+1}}
-                onClick={props.onClickHandler(props.row, props.col)}></div>
+                style={style}
+                onClick={props.onClickHandler}></div>
 }
 
 export default Button;

@@ -1,0 +1,52 @@
+.LoomEditorContainer {
+    display: grid;
+    grid-template-columns: 1fr 24em;
+    height: 100%;
+    // gap: 3em;
+}
+
+.EditorPanes{
+    border-top: 1px solid white;
+    padding-left: 2em;
+    padding-top: 1em;
+    height: 100%;
+
+    .Panel {
+        margin: 1em 0;
+        // padding: 4px 1em;
+        h1 {
+            padding-left: 1.5em;
+            padding-bottom: 0.5em;
+        }
+        .PanelContent {
+            border: 1px solid white;
+            padding: .75em 1.5em;
+            padding-bottom: 2.25em;
+        }
+    }
+
+    .Panel:first-child {
+        margin: 0;
+    }
+}
+
+.void {
+    font-size: 0px;
+}
+
+.LoomPane {
+    height: 100%;
+
+    .LoomContainer {
+        align-self: start;
+        display: grid;
+        justify-content: end;
+        align-items: start;
+        grid-template-rows: auto auto auto;
+        grid-template-columns: auto auto auto;
+        border-top: 1px solid white;
+        border-right: 1px solid white;
+        padding-top: 0.95em;
+        padding-right: 2em;
+    }
+}
