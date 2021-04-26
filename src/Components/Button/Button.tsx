@@ -21,7 +21,6 @@ const Button = (props: ButtonProps) => {
 
     if(props.thread) {
         style["backgroundColor"] = props.thread.dataSource.color;
-        console.log(style);
     }
 
     return <div className={"button " + (props.value ? "isActive" : "")}

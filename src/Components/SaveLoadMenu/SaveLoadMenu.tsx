@@ -4,6 +4,7 @@ import { createLoomState, createLoomStateFromStringDataRepesentation, decamelize
 import { patterns as presetPatterns } from '../../presets/presetWeavingPatterns'
 import '../DimensionsEditor/DimensionsEditor.css'
 import './SaveLoadMenu.css'
+import useLocalStorage from "../../Hooks/useLocalStorage";
 
 interface SaveLoadMenuProps {
     currentState: LoomState,
@@ -11,14 +12,24 @@ interface SaveLoadMenuProps {
 }
 
 export const SaveLoadMenu = (props: SaveLoadMenuProps) => {
-    const [saveStates, setSaveStates] = useState<LoomState[]>([]);
+    const [saveStates, setSaveStates] = useLocalStorage<LoomState[]>('saveStates', []);
+
+    const handleFileNameChange = (e: any) => {
+        // setSaveStates([...saveStates])
+    }
+
+    const handleRemove = (id: string) => {
+        const filteredSaveStates = saveStates.filter(state => state.id !== id);
+        setSaveStates(filteredSaveStates);
+    }
 
     const stateAsListItem = (state : LoomState, index: number) => {
         return (
             <li id={"saveFile-"+index.toString()} className="FileListItem">
-                <span className="FileName">{state.name}</span>
+                <input type="textfield" className="FileName" value={state.name}></input>
                 <button className="OverwriteBtn" onClick={handleOverwriteSave}>Overwrite</button>
-                <button className="LoadBtn" onClick={()=>props.onLoadSave(state)}>Load</button>
+                <button className="LoadBtn" onClick={() => props.onLoadSave(state)}>Load</button>
+                <button className="RemoveBtn" onClick={() => handleRemove(state.id)}>&mult;</button>
             </li>
         )
     }
@@ -53,7 +64,7 @@ export const SaveLoadMenu = (props: SaveLoadMenuProps) => {
                     {saveStateListItems(saveStates)}
                     {presetStateListItems(presetPatterns)}
                 </ol>
-                <button className="SaveBtn" onClick={handleSaveState}>New save</button>
+                <button className="SaveBtn" onClick={handleSaveState}>Save As New</button>
             </div>
             </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useRef } from "react";
+import React, { useEffect, useReducer, useRef, useState } from "react";
 import WeaveDisplay from "../WeaveDisplay/WeaveDisplay"
 import ButtonGrid from "../ButtonGrid/ButtonGrid"
 import {LoomActionType, LoomAction, LoomState, Harness, Treadle, Thread, DrawingInstruction, Color, LoomDimensions, Orientation, SubGridType, ThreadDataSource} from '../../types';
@@ -8,6 +8,8 @@ import { DimensionsEditor } from "../DimensionsEditor/DimensionsEditor";
 import { SaveLoadMenu } from "../SaveLoadMenu/SaveLoadMenu";
 import { ThreadEditor } from "../ThreadEditor/ThreadEditor";
 import ThreadButtonGrid from "../ThreadButtonGrid/ThreadButtonGrid";
+import ImageEditor from "../ImageEditor/ImageEditor";
+import { serialize } from "node:v8";
 var cloneDeep = require('lodash/cloneDeep');
 
 function reducer(state: LoomState, action: LoomAction) : LoomState {
@@ -112,12 +114,8 @@ function reducer(state: LoomState, action: LoomAction) : LoomState {
             }
             stateCopy.dimensions.weftCount = action.weftCount;
             break;
-        case LoomActionType.SET_CELLSIZE:
-            stateCopy.dimensions.cellSize = action.cellSize;
-            break;
         case LoomActionType.SET_STATE:
             const newState = action.state;
-            action.state.weaveScalar = stateCopy.weaveScalar;
             return newState;
             break;
         case LoomActionType.SET_WARPTHREADDATASOURCE:
@@ -128,9 +126,6 @@ function reducer(state: LoomState, action: LoomAction) : LoomState {
             break;
         case LoomActionType.SET_SELECTEDTHREADDATASOURCE:
             stateCopy.indexedThreadPalette.threadPalette[stateCopy.indexedThreadPalette.selectedIndex] = action.dataSource;
-            break;
-        case LoomActionType.SET_SCALAR:
-            stateCopy.weaveScalar = action.scalar;
             break;
         case LoomActionType.ADD_THREADDATASOURCE:
             stateCopy.indexedThreadPalette.threadPalette.push(cloneDeep(action.dataSource));
@@ -143,22 +138,27 @@ function reducer(state: LoomState, action: LoomAction) : LoomState {
     return stateCopy;
 }
 
-// const defaultWarpThreadRepresenation = () => {
-//     return (ctx: CanvasRenderingContext2D) => {
-//         ctx.fillStyle = "white";
-//     }
-// }
+interface LoomProps {
+    currentState: LoomState,
+    onChange: (...args: any) => void
+}
 
-// const defaultWeftThreadRepresentation = () => {
-//     return (ctx: CanvasRenderingContext2D) => {
-//         ctx.fillStyle = "black";
-//     }
-// }
+const Loom = (props: LoomProps) => {
+    const [state, dispatch] = useReducer(reducer, createLoomState(dimensionDefault));
 
-const initialState : LoomState = createLoomState(dimensionDefault);
+    // IMAGE PROPERTIES
+    const [imageCellSize, setImageCellSize] = useState<number>(16);
+    const [imageScale, setImageScale] = useState<number>(1);
+    const [imageThreadWidth, setImageThreadWidth] = useState<number>(100);
+    const [imageBackgroundColor, setImageBackgroundColor] = useState<string>("#000000");
 
-const Loom = () => {
-    const [state, dispatch] = useReducer(reducer, initialState);
+    useEffect(() => {   
+        dispatch({ type: LoomActionType.SET_STATE, state: props.currentState });
+    }, [props.currentState]); //, [(props.currentState)]
+
+    useEffect(() => {
+        props.onChange(state);
+    }, [state]);
 
     const loomGridOnClickEventHandler = (e: any, type: SubGridType) => {
         const target = e.target as HTMLDivElement;
@@ -212,9 +212,9 @@ const Loom = () => {
         return gridValues;
     }
 
-    const standardWarpDrawInstruction = (x: number, y: number, size: number, color: string) : DrawingInstruction => {
+    const standardWarpDrawInstruction = (x: number, y: number, width: number, height: number, color: string) : DrawingInstruction => {
         return ((ctx: CanvasRenderingContext2D) => {
-            ctx.rect(x,y,size,size);
+            ctx.rect(x,y,width,height);
             ctx.fillStyle = color;
         })
     }
@@ -226,21 +226,39 @@ const Loom = () => {
         })
     }
 
+    const backgroundWarpDrawInstruction = (x: number, width: number, height: number, color: string) : DrawingInstruction => {
+        return ((ctx: CanvasRenderingContext2D) => {
+            ctx.rect(x, 0, width, height);
+            ctx.fillStyle = color;
+        })
+    }
+
     const weaveDisplayDrawingInstructions = (state: LoomState): DrawingInstruction[] => {
         const instructions : DrawingInstruction[] = [];
-        const size = state.dimensions.cellSize;
-        state.weftThreads.forEach((weftThread, row) => {
-            instructions.push(standardWeftDrawInstruction(row*size, state.warpThreads.length*size, size, weftThread.dataSource.color))
+        const size = imageCellSize;
+        const threadSize = imageCellSize * (imageThreadWidth / 100.);
+        const halfThreadSizeDifference = (size - threadSize);
+        const hTSD = halfThreadSizeDifference;
+
+        state.warpThreads.forEach((warpThread, col) => {
+            instructions.push(backgroundWarpDrawInstruction((col*size)+hTSD, size-hTSD, state.weftThreads.length*size, warpThread.dataSource.color));
         })
+        
+        state.weftThreads.forEach((weftThread, row) => {
+            // instructions.push(standardWeftDrawInstruction(row*size, state.warpThreads.length*size, size, weftThread.dataSource.color))
+            instructions.push(standardWeftDrawInstruction((row*size)+hTSD, state.warpThreads.length*size, size-hTSD, weftThread.dataSource.color))
+        })
+
         state.treadlingInstructions.forEach((treadle, row) => {
             if(treadle){
                 treadle.harnesses.forEach(harness => {
                     harness.threads.forEach(warpThread => {
-                        instructions.push(standardWarpDrawInstruction(warpThread.id*size, row*size, size, warpThread.dataSource.color));
+                        instructions.push(standardWarpDrawInstruction((warpThread.id*size)+hTSD, row*size, size-hTSD, size+hTSD, warpThread.dataSource.color));
                     })
                 })
             }
         })
+        
         return instructions;
     }
 
@@ -249,16 +267,7 @@ const Loom = () => {
         dispatch({ type: LoomActionType.SET_TREADLECOUNT, treadleCount: dimensions.treadleCount});
         dispatch({ type: LoomActionType.SET_WARPCOUNT, warpCount: dimensions.warpCount});
         dispatch({ type: LoomActionType.SET_WEFTCOUNT, weftCount: dimensions.weftCount});
-        dispatch({ type: LoomActionType.SET_CELLSIZE, cellSize: dimensions.cellSize});
     }
-
-    const handleLoadSave = (state: LoomState) => {
-        dispatch({ type: LoomActionType.SET_STATE, state})
-    }
-
-    // const handleOverwriteSave = (state: LoomState, index: number) => {
-    //     dispatch({ type: LoomActionType.OVERWRITE_SAVE, index})
-    // }
 
     const handleSelectThreadDataSource = (selectedThreadDataSourceIndex: number) => {
         dispatch({ type: LoomActionType.SET_SELECTEDTHREADDATASOURCEINDEX, dataSourceIndex: selectedThreadDataSourceIndex});
@@ -272,44 +281,72 @@ const Loom = () => {
         dispatch({ type: LoomActionType.SET_SELECTEDTHREADDATASOURCE, dataSource: newthreadDataSource})
     }
 
-    const weaveDisplayScalarHandler = (e: any) => {
-        console.log(e);
-        e.preventDefault();
-        const weaveDisplayScalar = parseInt(e.target.value);
-        dispatch({ type: LoomActionType.SET_SCALAR, scalar: weaveDisplayScalar});
-    }
-
     return (
         <div className="LoomEditorContainer">
             <div className="LoomPane">
                 <div className="LoomContainer">
-                    <ThreadButtonGrid subGridType={SubGridType.WARPTHREADTABLE} cellSize={{width: state.dimensions.cellSize, height: (state.dimensions.cellSize/2.)}} gridValues={state.warpThreads} orientation={Orientation.HORIZONTAL} onClickHandler={loomGridOnClickEventHandler}/>
+                    <ThreadButtonGrid 
+                        subGridType={SubGridType.WARPTHREADTABLE}
+                        cellSize={{width: imageCellSize, height: (imageCellSize/2.)}}
+                        gridValues={state.warpThreads}
+                        orientation={Orientation.HORIZONTAL}
+                        onClickHandler={loomGridOnClickEventHandler}/>
                     <span className="void">&nbsp;</span>
                     <span className="void">&nbsp;</span>
-                    <ButtonGrid subGridType={SubGridType.HARNESSTOTHREADTABLE} cellSize={state.dimensions.cellSize} gridValues={topGridValues(state.warpThreads, state.harnesses)} onClickHandler={loomGridOnClickEventHandler}/>
-                    <ButtonGrid subGridType={SubGridType.TIEUPTABLE} cellSize={state.dimensions.cellSize} gridValues={tieup(state.harnesses, state.treadles)} onClickHandler={loomGridOnClickEventHandler}/>
+                    <ButtonGrid 
+                        subGridType={SubGridType.HARNESSTOTHREADTABLE} 
+                        cellSize={imageCellSize}
+                        gridValues={topGridValues(state.warpThreads, state.harnesses)}
+                        onClickHandler={loomGridOnClickEventHandler}/>
+                    <ButtonGrid 
+                        subGridType={SubGridType.TIEUPTABLE} 
+                        cellSize={imageCellSize}
+                        gridValues={tieup(state.harnesses, state.treadles)}
+                        onClickHandler={loomGridOnClickEventHandler}/>
                     <span className="void">&nbsp;</span>
-                    <WeaveDisplay repetitions={state.weaveScalar} dimensions={{x: state.dimensions.warpCount*state.dimensions.cellSize, y: state.dimensions.weftCount*state.dimensions.cellSize}} drawingInstructions={weaveDisplayDrawingInstructions(state)}/>
-                    <ButtonGrid subGridType={SubGridType.TREADLINGTABLE} cellSize={state.dimensions.cellSize} gridValues={rightGridValues(state.treadles, state.treadlingInstructions)} onClickHandler={loomGridOnClickEventHandler}/>
-                    <ThreadButtonGrid subGridType={SubGridType.WEFTTHREADTABLE} cellSize={{width: (state.dimensions.cellSize/2.), height: state.dimensions.cellSize}} gridValues={state.weftThreads} orientation={Orientation.VERTICAL} onClickHandler={loomGridOnClickEventHandler}/>
+                    <WeaveDisplay
+                        repetitions={imageScale} 
+                        dimensions={{x: state.dimensions.warpCount*imageCellSize, y: state.dimensions.weftCount*imageCellSize}}
+                        drawingInstructions={weaveDisplayDrawingInstructions(state)}
+                        backgroundClearColor={imageBackgroundColor}/>
+                    <ButtonGrid
+                        subGridType={SubGridType.TREADLINGTABLE}
+                        cellSize={imageCellSize}
+                        gridValues={rightGridValues(state.treadles, state.treadlingInstructions)}
+                        onClickHandler={loomGridOnClickEventHandler}/>
+                    <ThreadButtonGrid 
+                        subGridType={SubGridType.WEFTTHREADTABLE} 
+                        cellSize={{width: (imageCellSize/2.), height: imageCellSize}}
+                        gridValues={state.weftThreads} orientation={Orientation.VERTICAL}
+                        onClickHandler={loomGridOnClickEventHandler}/>
                 </div>
             </div>
             <div className="EditorPanes">
                 <DimensionsEditor
                     dimensions={state.dimensions}
-                    weaveDisplayScalarOnChange={weaveDisplayScalarHandler}
                     onDimensionsChange={handleDimensionsChange}
                     />
+                <ImageEditor>
+                    <form className="ImageEditorForm">
+                        <label style={{verticalAlign: "top"}} htmlFor="cellSize">cell size </label>
+                        <input type="range" min="2" max="16" defaultValue="16" id="cellSizeSlider" onChange={({target}) => setImageCellSize(parseInt(target.value))}/><br/>
+
+                        <label style={{verticalAlign: "top"}} htmlFor="scaleSlider">scale </label>
+                        <input type="range" min="1" max="16" defaultValue="1" id="scaleSlider" onChange={({target}) => setImageScale(parseInt(target.value))}/><br/>
+
+                        <label style={{verticalAlign: "top"}} htmlFor="threadWidthSlider">thread width </label>
+                        <input type="range" min="0" max="100" defaultValue="100" id="threadWidthSlider" onChange={({target}) => setImageThreadWidth(parseInt(target.value))}/><br/>
+
+                        <label style={{verticalAlign: "top"}} htmlFor="threadWidthSlider">background color </label>
+                        <input type="color" defaultValue="#000000" id="background" className="ColorPicker" onChange={({target}) => setImageBackgroundColor((target.value))}/><br/>
+
+                    </form>
+                </ImageEditor>
                 <ThreadEditor
                     onSelectThreadDataSource={handleSelectThreadDataSource}
                     onSetThreadDataSource={handleSetThreadDataSource}
                     onAddThreadDataSource={handleOnAddThreadDataSource}
                     indexedThreadPalette={state.indexedThreadPalette}/>
-                <SaveLoadMenu
-                    currentState={state}
-                    onLoadSave={handleLoadSave}
-                    // onOverwriteSave={handleOverwriteSave}
-                    />
             </div>
         </div>
     )

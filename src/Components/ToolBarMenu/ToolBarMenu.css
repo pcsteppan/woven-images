@@ -1,0 +1,20 @@
+.ToolBarMenu {
+    position: relative;
+}
+
+.ToolBarMenuChildren {
+    display: none;
+    position: absolute;
+    /* margin: 8px 4px; */
+    /* top: 2em; */
+}
+
+.ToolBarMenu:hover .ToolBarMenuChildren {
+    display: block;
+    border: 1px solid white;
+    min-width: 6em;
+}
+
+/* .ToolBarMenuChildren:hover {
+    background-color: #222;
+} */

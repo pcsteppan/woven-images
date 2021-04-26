@@ -1,0 +1,23 @@
+.DialogContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(25, 29, 30, 0.54);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.DialogBox {
+    width: 30em;
+    height: 10em;
+    background-color: black;
+    border: 1px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 1em 2em;
+}

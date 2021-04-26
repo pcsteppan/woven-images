@@ -1,16 +1,18 @@
 import { Harness, IndexedThreadPalette, LoomDimensions, LoomState, LoomStateStringRepresentation, Thread, ThreadDataSource, Treadle } from "../types";
+// import { uuidv4 }  from 'uuid';
+const { v4: uuidv4 } = require('uuid');
 var cloneDeep = require('lodash/cloneDeep');
+
 
 export const dimensionDefault : LoomDimensions = {
     harnessCount: 4,
     treadleCount: 4,
     warpCount: 16,
-    weftCount: 16,
-    cellSize: 16
+    weftCount: 16
 }
 
-export const defaultWarpThreadColor = "#FFFFFF";
-export const defaultWeftThreadColor = "#000000";
+export const defaultWarpThreadColor = "#000000";
+export const defaultWeftThreadColor = "#FFFFFF";
 
 export const defaultWarpThread : Thread = {
     id: 0,
@@ -52,41 +54,15 @@ export const createThread = (id: number, color: string) : Thread => {
     }
 }
 
-// export function arrayDimensionsFromString(str: String) : {rows: number, cols: number} {
-//     let min = Number.MAX_VALUE;
-//     let max = Number.MIN_VALUE;
-//     let sepStr = str.split(",");
-//     let length = 0;
-//     sepStr.forEach(substring => {
-//         if(substring.includes("-")) {
-//             substring.split("-").forEach(num => {
-//                 min = Math.min(min, parseInt(num));
-//                 max = Math.max(max, parseInt(num));
-//             })
-//         } else {
-//             min = Math.min(min, parseInt(substring));
-//             max = Math.max(max, parseInt(substring));
-//         }
-//         length += 1;
-//     })
-//     const numCols = length;
-//     const numRows = max-min;
-//     return {
-//         rows: numRows+1,
-//         cols: numCols,
-//     }
-// }
-
 export function loomDimensionsFromString(obj: LoomStateStringRepresentation) : LoomDimensions {
     const {threading, tieup, treadling} = obj.data;
     const tieupNumbers : number[] = numbersFromString(tieup);
-    console.log(Math.max(...tieupNumbers));
+    
     return {
         warpCount: threading.split(',').length,
         weftCount: expandPatternString(treadling).split(',').length,
         treadleCount: tieup.split(',').length,
-        harnessCount: Math.max(...tieupNumbers),
-        cellSize: 12
+        harnessCount: Math.max(...tieupNumbers)
     }
 }
 
@@ -119,6 +95,10 @@ export function createThreadDataSource(color: string) : ThreadDataSource {
     }
 }
 
+export function createUUID() : string {
+    return uuidv4();
+}
+
 export function createLoomState(dimensions: LoomDimensions) : LoomState {
 
     const harnesses = (harnessCount: number) : Array<Harness> => {
@@ -142,6 +122,7 @@ export function createLoomState(dimensions: LoomDimensions) : LoomState {
     }
 
     return {
+        id: createUUID(),
         dimensions,
         harnesses: harnesses(dimensions.harnessCount),
         warpThreads: warpThreads(dimensions.warpCount),
@@ -149,10 +130,69 @@ export function createLoomState(dimensions: LoomDimensions) : LoomState {
         treadles: treadles(dimensions.treadleCount),
         treadlingInstructions: treadlingInstructions(dimensions.weftCount),
         threadDataSource: { color: "#FFFFFF" },
-        weaveScalar: 1,
         name: "untitled",
         indexedThreadPalette: (cloneDeep(defaultIndexedThreadPalette))
     }
+}
+
+type LoomPart<T> = {
+    [setName: string]: Set<T>
+}
+
+export const convertLoomStateToJSON = (state: LoomState) : string => {
+    return JSON.stringify({
+        id: state.id,
+        dimensions: state.dimensions,
+        treadles: convertLoomPartToJSON(state.treadles, state.harnesses),
+        harnesses: convertLoomPartToJSON(state.harnesses, state.warpThreads),
+        treadlingInstructions: state.treadlingInstructions.map(treadle => treadle ? state.treadles.indexOf(treadle) : -1),
+        warpThreads: state.warpThreads,//.map(thread => convertThreadToJSON(thread)),
+        weftThreads: state.weftThreads,//.map(thread => convertThreadToJSON(thread)),
+        threadDataSource: state.threadDataSource,
+        name: state.name,
+        indexedThreadPalette: state.indexedThreadPalette
+    })
+}
+
+export const convertJSONToLoomState = (jsonData: string) : LoomState => {
+    const state = JSON.parse(jsonData);
+    state.harnesses = state.harnesses.map((subArr : Array<number>) => {
+        const harness: Harness = createHarness();
+        subArr.forEach((index: number) => { harness.threads.add(state.warpThreads[index])});
+        return harness;
+    })
+    state.treadles = state.treadles.map((subArr: Array<number>) => {
+        const treadle : Treadle = createTreadle();
+        subArr.forEach((index: number) => { treadle.harnesses.add(state.harnesses[index])});
+        return treadle;
+    })
+    state.treadlingInstructions = state.treadlingInstructions.map((index: number) => state.treadles[index]);
+    return state;
+}
+
+// treadlingInstructions is an array of references to treadles
+// a harness is an object containing a property which is a set of threads
+// a treadle is an object containing a property which is a set of harnesses
+// a thread is a datasource
+function convertLoomPartToJSON<T>(partArr: Array<LoomPart<T>>, refArr: Array<T>) : Array<Array<number>> {
+    // iterate through all items in set, push indexOf item in refArr to newArr
+    const indexes : Array<Array<number>> = [];
+    partArr.forEach((part, i) => {
+        indexes.push([]);
+        if("harnesses" in part) {
+            // part is treadle, T is harness
+            part.harnesses.forEach((harness : T) => {
+                indexes[i].push(refArr.indexOf(harness));
+            })
+
+        } else if ("threads" in part) {
+            // part is harness, T is thread
+            part.threads.forEach((thread : T) => {
+                indexes[i].push(refArr.indexOf(thread));
+            })
+        }
+    })
+    return indexes;
 }
 
 const defaultIndexedThreadPalette : IndexedThreadPalette = {

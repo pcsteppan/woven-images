@@ -13,6 +13,12 @@
 ## saveload panel
     better formatting (✓)
     dark gradient at bottom of panel container implying scroll down is available
+    
+    ### NOTES
+        Save As
+        Save
+        Create New
+        Load
 
 ## load function in utils
     inverse indexes so tieup and instructions are not inverted as they are now (✓)

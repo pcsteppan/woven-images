@@ -1,11 +1,41 @@
 [class$="Btn"] {
-    background-color: rgba(0,0,0,0);
+    background-color: rgb(0,0,0);
     border: 1px dotted white;
     color: white;
     padding: 4px 8px;
 }
 
 [class$="Btn"]:hover {
-    border: 1px solid white;
+    border-style: solid;
 }
 
+select {
+    color: white;
+    background-color: black;
+    border: none;
+    option {
+        color: white;
+        background-color: black;
+    }
+}
+
+input {
+    background-color: black;
+    border: none;
+    color: white;
+}
+
+.cancelBtn {
+    border-color: red;
+}
+
+input.underline {
+    border-bottom: 1px solid white;
+}
+
+.ColorPicker {
+    border: none;
+    width: 100%;
+    height: 3em;
+    margin: .5em 0;
+}

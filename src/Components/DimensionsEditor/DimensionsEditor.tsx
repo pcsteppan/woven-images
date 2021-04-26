@@ -6,7 +6,6 @@ import './DimensionsEditor.css'
 interface DimensionsEditorProps {
     dimensions: LoomDimensions
     onDimensionsChange : (...args: any) => void
-    weaveDisplayScalarOnChange: (e: any) => void
 }
 
 export const DimensionsEditor = (props: DimensionsEditorProps) => {
@@ -16,7 +15,6 @@ export const DimensionsEditor = (props: DimensionsEditorProps) => {
     useEffect( () => {
         setLocalDimensions(props.dimensions);
     }, [props.dimensions])
-
 
 
     const onSubmit = (e: any) => {
@@ -46,8 +44,8 @@ export const DimensionsEditor = (props: DimensionsEditorProps) => {
         <div className="PanelContent">
             <form className="DimensionsForm" onSubmit={onSubmit}>
                 {formItems}
-                <label style={{verticalAlign: "top"}} htmlFor="scaleSlider">scale </label>
-                <input type="range" min="1" max="8" defaultValue="1" id="scaleSlider" onChange={props.weaveDisplayScalarOnChange}/><br/>
+                {/* <label style={{verticalAlign: "top"}} htmlFor="scaleSlider">scale </label>
+                <input type="range" min="1" max="8" defaultValue="1" id="scaleSlider" onChange={props.weaveDisplayScalarOnChange}/><br/> */}
                 <button className="ApplyBtn" type="submit">Apply</button>
             </form>
         </div>

@@ -1,0 +1,31 @@
+.ToolBarMenuNode:hover, .ToolBarMenuSubNode:hover {
+    background-color: #233;
+}
+
+.ToolBarMenuNode {
+    background-color: black;
+    position: relative;
+    cursor: pointer;
+}
+
+.ToolBarMenuSubNodes.populated{
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    border: 1px solid white;
+    background-color: black;
+    min-width: 12em;
+}
+
+.ToolBarMenuSubNode {
+    margin-bottom: 4px;
+}
+
+.ToolBarMenuNode:hover .ToolBarMenuSubNodes{
+    display: block;
+}
+
+.ToolBarMenuSubNodes:hover {
+    display: block;
+}

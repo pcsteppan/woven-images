@@ -1,59 +1,95 @@
-import React, { useReducer, useState } from 'react';
-import { ContainerAction, ContainerActionType } from '../../types';
 import './Container.scss';
 import Loom from '../LoomEditor/LoomEditor';
+// import { SaveLoadMenu } from '../SaveLoadMenu/SaveLoadMenu';
+import React, { useEffect, useState } from 'react';
+import { LoomState, LoomStateDict, SerializedLoomState } from '../../types';
+import ToolBarFileMenu from '../ToolBar/ToolBar';
+import ToolBar from '../ToolBar/ToolBar';
+import useLocalStorage from '../../Hooks/useLocalStorage';
+import { convertJSONToLoomState, convertLoomStateToJSON, createLoomState, createUUID, dimensionDefault } from '../../utils';
+import { reduceEachLeadingCommentRange } from 'typescript';
+import Dialog from '../Dialog/Dialog';
+var cloneDeep = require('lodash/cloneDeep');
 
-// interface ContainerState {
-//     warpCount: number,
-//     weftCount: number,
-//     harnessCount: number,
-//     treadleCount: number
-// }
-
-// const initialState : ContainerState = {
-//     warpCount: 16,
-//     weftCount: 16,
-//     harnessCount: 4,
-//     treadleCount: 4
-// };
-
-// function reducer(state: ContainerState, action: ContainerAction) {
-//     switch(action.type) {
-//         case ContainerActionType.SET_WARPCOUNT:
-//             return {...state, warpCount: action.warpCount};
-//         case ContainerActionType.SET_WEFTCOUNT:
-//             return {...state, weftCount: action.weftCount};
-//         case ContainerActionType.SET_HARNESSCOUNT:
-//             return {...state, harnessCount: action.harnessCount};
-//         case ContainerActionType.SET_TREADLECOUNT:
-//             return {...state, treadleCount: action.treadleCount};
-//         default:
-//             throw new Error();
-//     }
-// }
 
 const Container = () => {
-    // const [state, dispatch] = useReducer(reducer, initialState);
-    // const [inputWarpCount, setInputWarpCount] = useState<number>(state.warpCount);
-    // const [inputWeftCount, setInputWeftCount] = useState<number>(state.weftCount);
-    // const [inputHarnessCount, setInputHarnessCount] = useState<number>(state.harnessCount);
-    // const [inputTreadleCount, setInputTreadleCount] = useState<number>(state.treadleCount);
+    const [saveStateDict, setSaveStateDict] = useLocalStorage<LoomStateDict>('saveStates', {});
+    const [saveStateNames, setSaveStateNames] = useLocalStorage<{[id: string]: string}>('saveStateNames', {});
+    const initialState : LoomState = createLoomState(dimensionDefault);
+    const [currentState, setCurrentState] = useState<LoomState>(initialState);
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
 
-    // const saveHandler = (e: any) => {
-    //     // dispatch({type: ContainerActionType.TEST, arg: e})
-    //     console.log(e);
-    // }
+    const [liveStateRef, setLiveStateRef] = useState<LoomState>(currentState);
+
+    const updateLiveStateRef = (ref: LoomState) => {
+        setLiveStateRef(ref);
+    }
+
+    // save new state to state ref with ID
+    const handleSave = () => {
+        const serializedLoomState: SerializedLoomState = convertLoomStateToJSON(liveStateRef); 
+        setSaveStateDict({...saveStateDict, [liveStateRef.id]: serializedLoomState});
+        setSaveStateNames({...saveStateNames, [liveStateRef.id]: liveStateRef.name});
+    }
+
+    // push new state with newly generated uuid with new name
+    const handleSaveAs = (e: any) => {
+        setOpenDialog(false);
+        e.preventDefault();
+        const newUUID = createUUID();
+        const stateClone = cloneDeep(liveStateRef);
+        const newName = e.target["newFileName"].value;
+        stateClone.name = newName;
+        stateClone.id = newUUID;
+        const serilizedState : SerializedLoomState = convertLoomStateToJSON(liveStateRef);
+        setSaveStateDict({...saveStateDict, [newUUID]: serilizedState});
+        setSaveStateNames({...saveStateNames, [stateClone.id]: stateClone.name});
+        setCurrentState(stateClone);
+    }
+
+    const handleSaveAsClickOpen = () => {
+        setOpenDialog(true);
+    }
+
+    const handleClose = () => {
+        setOpenDialog(false);
+    }
+
+    const handleLoad = (stateID: string) => {
+        const serializedState : SerializedLoomState = saveStateDict[stateID];
+        const state : LoomState = convertJSONToLoomState(serializedState);
+        setCurrentState(state);
+    }
+
+    const handleLoadPreset = (state: LoomState) => {
+        setCurrentState(state);
+    }
 
     return (
         <div className="Container">
-            <Loom 
-                // warpCount={state.warpCount}
-                // weftCount={state.weftCount}
-                // harnessCount={state.harnessCount}
-                // treadleCount={state.treadleCount}
-                // cellSize={16}
-                // onSave={saveHandler}
-            />
+            <ToolBar
+                saveStateDict={saveStateDict}
+                saveStateNames={saveStateNames}
+                onLoad={handleLoad}
+                onLoadPreset={handleLoadPreset}
+                onSaveAs={handleSaveAsClickOpen}
+                onSave={handleSave}/>
+            <Loom
+                currentState={currentState}
+                onChange={updateLiveStateRef}/>
+            {openDialog && <Dialog>
+                <form className="w100" onSubmit={handleSaveAs}>
+                    <div className="w100">
+                        <span>New file name:</span>
+                        <input type="text" name="newFileName" className="underline w100" placeholder={liveStateRef.name}></input>
+                    </div>
+                    <div className="w100" style={{"marginTop":"1em"}}>
+                        <button className="cancelBtn" style={{"width":"50%"}} onClick={handleClose}>Cancel</button>
+                        <button type="submit" className="saveBtn" style={{"width":"50%"}}>Save</button>
+                    </div>
+                </form>
+            </Dialog>}
+            {/* Dialog if Save As or Create New are selected in the file menu */}
         </div>
     )
 }

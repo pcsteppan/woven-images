@@ -1,5 +1,3 @@
-import { CSSProperties } from "react"
-
 export enum SubGridType {
   WARPTHREADTABLE,
   WEFTTHREADTABLE,
@@ -26,13 +24,6 @@ export type ContainerAction =
 | { type: ContainerActionType.SET_TREADLECOUNT; treadleCount: number;}
 | { type: ContainerActionType.SET_HARNESSCOUNT; harnessCount: number;}
 
-
-
-
-
-
-
-
 export enum LoomActionType {
     SET_HARNESSTOTHREADATTACHMENTS,
     SET_TREADLETOHARNESSATTACHMENTS,
@@ -41,15 +32,12 @@ export enum LoomActionType {
     SET_TREADLECOUNT,
     SET_WEFTCOUNT,
     SET_WARPCOUNT,
-    SET_CELLSIZE,
     SET_STATE,
     SET_WARPTHREADDATASOURCE,
     SET_WEFTTHREADDATASOURCE,
     SET_SELECTEDTHREADDATASOURCEINDEX,
     SET_SELECTEDTHREADDATASOURCE,
-    SET_SCALAR,
-    ADD_THREADDATASOURCE,
-    OVERWRITE_SAVE
+    ADD_THREADDATASOURCE
 }
 
 export type LoomAction =
@@ -60,14 +48,12 @@ export type LoomAction =
 | { type: LoomActionType.SET_TREADLECOUNT; treadleCount: number; }
 | { type: LoomActionType.SET_WARPCOUNT; warpCount: number; }
 | { type: LoomActionType.SET_WEFTCOUNT; weftCount: number; }
-| { type: LoomActionType.SET_CELLSIZE; cellSize: number; }
 | { type: LoomActionType.SET_STATE; state: LoomState; }
 | { type: LoomActionType.SET_WARPTHREADDATASOURCE; warpThreadID: number; }
 | { type: LoomActionType.SET_WEFTTHREADDATASOURCE; weftThreadID: number; }
 | { type: LoomActionType.SET_SELECTEDTHREADDATASOURCEINDEX; dataSourceIndex: number; }
 | { type: LoomActionType.ADD_THREADDATASOURCE; dataSource: ThreadDataSource; }
 | { type: LoomActionType.SET_SELECTEDTHREADDATASOURCE; dataSource: ThreadDataSource; }
-| { type: LoomActionType.SET_SCALAR; scalar: number; }
 
 export type LoomDimensions = {
   [property: string]: number
@@ -75,6 +61,7 @@ export type LoomDimensions = {
 
 export type LoomState = {
   name: string;
+  id: string;
   dimensions: LoomDimensions;
   harnesses: Harness[];
   warpThreads: Thread[];
@@ -83,7 +70,12 @@ export type LoomState = {
   treadlingInstructions: (Treadle | null)[];
   threadDataSource: ThreadDataSource;
   indexedThreadPalette: IndexedThreadPalette
-  weaveScalar: number;
+}
+
+export type SerializedLoomState = string;
+
+export type LoomStateDict = {
+  [uuid: string]: SerializedLoomState
 }
 
 export type LoomStateStringRepresentation = {
