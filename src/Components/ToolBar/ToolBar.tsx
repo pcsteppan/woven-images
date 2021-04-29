@@ -10,7 +10,8 @@ interface ToolBarProps {
     onLoad: (stateID: string) => void,
     onSaveAs: (...args: any) => void,
     onSave: (...args: any) => void,
-    onLoadPreset: (state: LoomState) => void
+    onLoadPreset: (state: LoomState) => void,
+    onCreateNew: (...args: any) => void
 }
 
 const ToolBar = (props: ToolBarProps) => {
@@ -38,30 +39,20 @@ const ToolBar = (props: ToolBarProps) => {
                 .map(stateString => createLoomStateFromStringDataRepesentation(stateString))
                 .map((state, i) => presetStateAsToolBarMenuNode(state));
     }
-
-    const handleSave = () => {
-        // alert("Saved successfully");
-        props.onSave();
-    }
-
-    const handleSaveAs = () => {
-        // alert("save as");
-        props.onSaveAs();
-    }
-
+    
     return (
         <ToolBarMenu name={"File"}>
             <ToolBarMenuNode
                 text="Create New"
-                onClick={() => console.log("create new")}
+                onClick={props.onCreateNew}
                 />
             <ToolBarMenuNode
                 text="Save"
-                onClick={handleSave}
+                onClick={props.onSave}
                 />
             <ToolBarMenuNode
                 text="Save As"
-                onClick={handleSaveAs}
+                onClick={props.onSaveAs}
                 />
             <ToolBarMenuNode
                 text="Load">

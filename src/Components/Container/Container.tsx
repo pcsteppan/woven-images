@@ -18,7 +18,7 @@ const Container = () => {
     const initialState : LoomState = createLoomState(dimensionDefault);
     const [currentState, setCurrentState] = useState<LoomState>(initialState);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-
+    const [currentDialog, setCurrentDialog] = useState<JSX.Element>();
     const [liveStateRef, setLiveStateRef] = useState<LoomState>(currentState);
 
     const updateLiveStateRef = (ref: LoomState) => {
@@ -33,23 +33,46 @@ const Container = () => {
     }
 
     // push new state with newly generated uuid with new name
+
+    // DIALOGS - CLICK OPENS
+    const handleSaveAsClickOpen = () => {
+        setCurrentDialog(SaveAsDialog);
+        setOpenDialog(true);
+    }
+
+    const handleCreateNewClickOpen = () => {
+        setCurrentDialog(CreateNewDialog);
+        setOpenDialog(true);
+    }
+    //
+
+    // DIALOG HANDLERS
+    const handleCreateNew = (e: any) => {
+        setOpenDialog(false);
+        e.preventDefault();
+        
+        const newState = createLoomState(dimensionDefault);
+        const newName = e.target["fileName"].value;
+        newState.name = newName;
+        setCurrentState(newState);
+    }
+
     const handleSaveAs = (e: any) => {
         setOpenDialog(false);
         e.preventDefault();
+        
         const newUUID = createUUID();
         const stateClone = cloneDeep(liveStateRef);
         const newName = e.target["newFileName"].value;
         stateClone.name = newName;
         stateClone.id = newUUID;
+        
         const serilizedState : SerializedLoomState = convertLoomStateToJSON(liveStateRef);
         setSaveStateDict({...saveStateDict, [newUUID]: serilizedState});
         setSaveStateNames({...saveStateNames, [stateClone.id]: stateClone.name});
         setCurrentState(stateClone);
     }
-
-    const handleSaveAsClickOpen = () => {
-        setOpenDialog(true);
-    }
+    //
 
     const handleClose = () => {
         setOpenDialog(false);
@@ -65,11 +88,43 @@ const Container = () => {
         setCurrentState(state);
     }
 
+
+    const SaveAsDialog = (
+        <Dialog>
+            <form className="w100" onSubmit={handleSaveAs}>
+                <div className="w100">
+                    <span>New file name:</span>
+                    <input type="text" name="newFileName" className="underline w100" placeholder={liveStateRef.name}></input>
+                </div>
+                <div className="w100" style={{"marginTop":"1em"}}>
+                    <button className="cancelBtn" style={{"width":"50%"}} onClick={handleClose}>Cancel</button>
+                    <button type="submit" className="saveBtn" style={{"width":"50%"}}>Save</button>
+                </div>
+            </form>
+        </Dialog>
+    )
+
+    const CreateNewDialog = (
+        <Dialog>
+            <form className="w100" onSubmit={handleCreateNew}>
+                <div className="w100">
+                    <span>File name:</span>
+                    <input type="text" name="fileName" className="underline w100" placeholder="untitled"></input>
+                </div>
+                <div className="w100" style={{"marginTop":"1em"}}>
+                    <button className="cancelBtn" style={{"width":"50%"}} onClick={handleClose}>Cancel</button>
+                    <button type="submit" className="saveBtn" style={{"width":"50%"}}>Create</button>
+                </div>
+            </form>
+        </Dialog>
+    )
+
     return (
         <div className="Container">
             <ToolBar
                 saveStateDict={saveStateDict}
                 saveStateNames={saveStateNames}
+                onCreateNew={handleCreateNewClickOpen}
                 onLoad={handleLoad}
                 onLoadPreset={handleLoadPreset}
                 onSaveAs={handleSaveAsClickOpen}
@@ -77,18 +132,7 @@ const Container = () => {
             <Loom
                 currentState={currentState}
                 onChange={updateLiveStateRef}/>
-            {openDialog && <Dialog>
-                <form className="w100" onSubmit={handleSaveAs}>
-                    <div className="w100">
-                        <span>New file name:</span>
-                        <input type="text" name="newFileName" className="underline w100" placeholder={liveStateRef.name}></input>
-                    </div>
-                    <div className="w100" style={{"marginTop":"1em"}}>
-                        <button className="cancelBtn" style={{"width":"50%"}} onClick={handleClose}>Cancel</button>
-                        <button type="submit" className="saveBtn" style={{"width":"50%"}}>Save</button>
-                    </div>
-                </form>
-            </Dialog>}
+            {openDialog && currentDialog}
             {/* Dialog if Save As or Create New are selected in the file menu */}
         </div>
     )
