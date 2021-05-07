@@ -112,6 +112,7 @@ export type IndexedThreadPalette = {
 export type Color = string
 
 export type DrawingInstruction = (ctx: CanvasRenderingContext2D) => void
+export type DrawingInstructionWGL = (ctx: WebGL2RenderingContext, colorLocation: any, program: any) => void
 
 // type DrawInstructions = {
 //   // [instructionName: string] : (arg0: value) => value;

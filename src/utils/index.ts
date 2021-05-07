@@ -28,6 +28,10 @@ export const defaultWeftThread : Thread = {
     }
 }
 
+export const rFromHexString = (str: String) : number => parseInt(str.substring(1,3), 16);
+export const gFromHexString = (str: String) : number => parseInt(str.substring(3,5), 16);
+export const bFromHexString = (str: String) : number => parseInt(str.substring(5,7), 16);
+
 export function decamelize(str: string, separator: string){
     separator = typeof separator === 'undefined' ? '_' : separator;
     
@@ -238,3 +242,18 @@ export function createLoomStateFromStringDataRepesentation(obj: LoomStateStringR
 
     return state;
 }
+
+export function setRectangle(gl: WebGL2RenderingContext, x: number, y: number, width: number, height: number) {
+    var x1 = x;
+    var x2 = x + width;
+    var y1 = y;
+    var y2 = y + height;
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+       x1, y1,
+       x2, y1,
+       x1, y2,
+       x1, y2,
+       x2, y1,
+       x2, y2,
+    ]), gl.STATIC_DRAW);
+  }
