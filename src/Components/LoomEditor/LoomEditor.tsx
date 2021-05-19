@@ -399,8 +399,8 @@ const Loom = (props: LoomProps) => {
             <div className="LoomPane">
                 <div className="LoomContainer"
                     style={{
-                        gridTemplateColumns: (state.dimensions.warpCount * Math.max(imageCellSize, imageUnitSize)) + "px auto auto",
-                        gridTemplateRows: "auto auto " + (state.dimensions.weftCount * Math.max(imageCellSize, imageUnitSize)) + "px"
+                        gridTemplateColumns: (state.dimensions.warpCount * imageCellSize) + "px auto auto",
+                        gridTemplateRows: "auto auto " + (state.dimensions.weftCount * imageCellSize) + "px"
                     }}>
                     <ThreadButtonGrid
                         subGridType={SubGridType.WARPTHREADTABLE}
@@ -437,7 +437,7 @@ const Loom = (props: LoomProps) => {
                             <Scene
                                 warpThreadCount={state.dimensions.warpCount}
                                 weftThreadCount={state.dimensions.weftCount}
-                                unitSize={imageUnitSize}
+                                unitSize={imageCellSize}
                                 repeats={imageScale}
                                 colorBuffer={weaveDisplayColorBuffer(state)}
                                 cameraMode={props.cameraMode}
