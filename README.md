@@ -2,6 +2,7 @@
 Woven Images is a web app for viewing and crafting drafts for woven patterns.
 Built with typescript, react, and threeJS.
 
+![A screen capture of the web application in use with a complex weaving pattern](./src/Images/woven-images-1.png)
 
 ## Future development plans
 
