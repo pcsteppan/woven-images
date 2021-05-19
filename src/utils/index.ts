@@ -11,22 +11,27 @@ export const dimensionDefault : LoomDimensions = {
     weftCount: 16
 }
 
-export const defaultWarpThreadColor = "#000000";
+// weft 0, warp 1
 export const defaultWeftThreadColor = "#FFFFFF";
+export const defaultWarpThreadColor = "#000000";
+export const defaultWeftThreadPaletteIndex = 0;
+export const defaultWarpThreadPaletteIndex = 1;
 
-export const defaultWarpThread : Thread = {
-    id: 0,
-    dataSource: {
-        color: defaultWarpThreadColor
-    }
-}
+const defaultIndexedThreadPalette : IndexedThreadPalette = {
+    threadPalette: [createThreadDataSource(defaultWeftThreadColor), createThreadDataSource(defaultWarpThreadColor)],
+    selectedIndex: 0
+}; 
 
 export const defaultWeftThread : Thread = {
     id: 0,
-    dataSource: {
-        color: defaultWeftThreadColor
-    }
+    threadPaletteIndex: defaultWeftThreadPaletteIndex
 }
+
+export const defaultWarpThread : Thread = {
+    id: 0,
+    threadPaletteIndex: defaultWarpThreadPaletteIndex
+}
+
 
 export const rFromHexString = (str: String) : number => parseInt(str.substring(1,3), 16);
 export const gFromHexString = (str: String) : number => parseInt(str.substring(3,5), 16);
@@ -49,12 +54,10 @@ export const createTreadle = () : Treadle => {
     return { harnesses: new Set<Harness>() } 
 }
 
-export const createThread = (id: number, color: string) : Thread => {
+export const createThread = (id: number, threadPaletteIndex: number) : Thread => {
     return {
         id,
-        dataSource: {
-            color
-        }
+        threadPaletteIndex
     }
 }
 
@@ -110,11 +113,11 @@ export function createLoomState(dimensions: LoomDimensions) : LoomState {
     }
 
     const warpThreads = (warpCount: number) : Array<Thread> => {
-        return new Array(warpCount).fill(defaultWarpThread).map((_, i) => createThread(i, defaultWarpThreadColor));
+        return new Array(warpCount).fill(defaultWarpThread).map((_, i) => createThread(i, defaultWarpThreadPaletteIndex));
     }
 
     const weftThreads = (warpCount: number) : Array<Thread> => {
-        return new Array(warpCount).fill(defaultWeftThread).map((_, i) => createThread(i, defaultWeftThreadColor));
+        return new Array(warpCount).fill(defaultWeftThread).map((_, i) => createThread(i, defaultWeftThreadPaletteIndex));
     }
 
     const treadles = (treadleCount: number) : Array<Treadle> => {
@@ -199,11 +202,6 @@ function convertLoomPartToJSON<T>(partArr: Array<LoomPart<T>>, refArr: Array<T>)
     return indexes;
 }
 
-const defaultIndexedThreadPalette : IndexedThreadPalette = {
-    threadPalette: [createThreadDataSource("#FFFFFF"), createThreadDataSource("#000000")],
-    selectedIndex: 0
-}; 
-
 export function createLoomStateFromStringDataRepesentation(obj: LoomStateStringRepresentation) : LoomState {
     const state = createLoomState(loomDimensionsFromString(obj));
     const {threading, tieup, treadling} = obj.data;
@@ -211,9 +209,11 @@ export function createLoomStateFromStringDataRepesentation(obj: LoomStateStringR
     // parse threading
     // connect harness to warp threads
     threading.split(',')
+    .reverse()
         .map(s => parseInt(s))
         .forEach((harnessIndex, warpThreadIndex) => {
-            state.harnesses[harnessIndex-1].threads.add(state.warpThreads[warpThreadIndex])
+            const invertedHarnessIndex = state.harnesses.length - harnessIndex; //  (n - [1,n]) -> [n-1, 0]
+            state.harnesses[invertedHarnessIndex].threads.add(state.warpThreads[warpThreadIndex])
         })
 
     // parse tieup

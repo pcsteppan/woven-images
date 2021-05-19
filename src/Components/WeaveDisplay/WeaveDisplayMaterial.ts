@@ -23,6 +23,7 @@ uniform sampler2D patternDataTexture;
 void main() {
     vec2 uv = vUv * repeats;
     uv = uv - floor(uv);
+    uv.y = 1. - uv.y;
     gl_FragColor.rgba = texture2D(patternDataTexture, uv);
     gl_FragColor.a = 1.;
 }

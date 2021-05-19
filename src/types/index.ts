@@ -33,8 +33,8 @@ export enum LoomActionType {
     SET_WEFTCOUNT,
     SET_WARPCOUNT,
     SET_STATE,
-    SET_WARPTHREADDATASOURCE,
-    SET_WEFTTHREADDATASOURCE,
+    SET_WARPTHREADTHREADPALETTEINDEX,
+    SET_WEFTTHREADTHREADPALETTEINDEX,
     SET_SELECTEDTHREADDATASOURCEINDEX,
     SET_SELECTEDTHREADDATASOURCE,
     ADD_THREADDATASOURCE
@@ -49,8 +49,8 @@ export type LoomAction =
 | { type: LoomActionType.SET_WARPCOUNT; warpCount: number; }
 | { type: LoomActionType.SET_WEFTCOUNT; weftCount: number; }
 | { type: LoomActionType.SET_STATE; state: LoomState; }
-| { type: LoomActionType.SET_WARPTHREADDATASOURCE; warpThreadID: number; }
-| { type: LoomActionType.SET_WEFTTHREADDATASOURCE; weftThreadID: number; }
+| { type: LoomActionType.SET_WARPTHREADTHREADPALETTEINDEX; warpThreadID: number; }
+| { type: LoomActionType.SET_WEFTTHREADTHREADPALETTEINDEX; weftThreadID: number; }
 | { type: LoomActionType.SET_SELECTEDTHREADDATASOURCEINDEX; dataSourceIndex: number; }
 | { type: LoomActionType.ADD_THREADDATASOURCE; dataSource: ThreadDataSource; }
 | { type: LoomActionType.SET_SELECTEDTHREADDATASOURCE; dataSource: ThreadDataSource; }
@@ -97,7 +97,7 @@ export type Treadle = {
 
 export type Thread = {
   id: number
-  dataSource: ThreadDataSource
+  threadPaletteIndex: number
 }
 
 export type ThreadDataSource = {
@@ -113,6 +113,11 @@ export type Color = string
 
 export type DrawingInstruction = (ctx: CanvasRenderingContext2D) => void
 export type DrawingInstructionWGL = (ctx: WebGL2RenderingContext, colorLocation: any, program: any) => void
+
+export enum CameraMode {
+  Orthographic,
+  Perspective
+}
 
 // type DrawInstructions = {
 //   // [instructionName: string] : (arg0: value) => value;

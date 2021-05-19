@@ -29,3 +29,7 @@
 .ToolBarMenuSubNodes:hover {
     display: block;
 }
+
+.ToolBarMenuNode, .ToolBarMenuSubNode {
+    padding: 2px 4px;
+}

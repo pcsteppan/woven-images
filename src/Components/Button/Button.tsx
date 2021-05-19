@@ -1,6 +1,6 @@
 import { threadId } from 'node:worker_threads';
 import React, { CSSProperties, MouseEventHandler } from 'react';
-import { Thread, ThreadDataSource } from '../../types';
+import { IndexedThreadPalette, Thread, ThreadDataSource } from '../../types';
 import './Button.css';
 
 interface ButtonProps {
@@ -9,6 +9,7 @@ interface ButtonProps {
     row: number,
     col: number,
     cellSize: number | {width: number, height: number},
+    palette: IndexedThreadPalette,
     thread?: Thread,
     onClickHandler: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
@@ -20,7 +21,7 @@ const Button = (props: ButtonProps) => {
     }
 
     if(props.thread) {
-        style["backgroundColor"] = props.thread.dataSource.color;
+        style["backgroundColor"] = props.palette.threadPalette[props.thread.threadPaletteIndex].color;
     }
 
     return <div className={"button " + (props.value ? "isActive" : "")}

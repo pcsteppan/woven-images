@@ -1,5 +1,5 @@
 import React, { Dispatch, MouseEventHandler, SetStateAction } from 'react';
-import { SubGridType } from '../../types';
+import { IndexedThreadPalette, SubGridType } from '../../types';
 import Button from '../Button/Button';
 import './ButtonGrid.scss';
 
@@ -9,6 +9,8 @@ interface ButtonGridProps {
     cellSize: number;
     subGridType: SubGridType;
     onClickHandler: (e: React.MouseEvent<HTMLDivElement>, type: SubGridType) => void;
+    palette: IndexedThreadPalette;
+    className?: string;
 }
 
 const ButtonGrid = (props: ButtonGridProps) => {
@@ -23,12 +25,13 @@ const ButtonGrid = (props: ButtonGridProps) => {
                            row={rowIndex}
                            col={colIndex}
                            cellSize={props.cellSize}
-                           onClickHandler={handleButtonClick}/>
+                           onClickHandler={handleButtonClick}
+                           palette={props.palette}/>
         })
     })
 
     return (
-        <div className="ButtonGrid"
+        <div className={"ButtonGrid " + (props.className ? props.className : "")}
              style={{gridTemplateRows: `repeat(1fr, ${props.gridValues.length})`,
                      gridTemplateColumns: `repeat(1fr, ${props.gridValues[0].length})`,
                      width: `${props.gridValues[0].length*props.cellSize}px`,

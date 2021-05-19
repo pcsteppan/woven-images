@@ -2,7 +2,7 @@ import './Container.scss';
 import Loom from '../LoomEditor/LoomEditor';
 // import { SaveLoadMenu } from '../SaveLoadMenu/SaveLoadMenu';
 import React, { useEffect, useState } from 'react';
-import { LoomState, LoomStateDict, SerializedLoomState } from '../../types';
+import { CameraMode, LoomState, LoomStateDict, SerializedLoomState } from '../../types';
 import ToolBarFileMenu from '../ToolBar/ToolBar';
 import ToolBar from '../ToolBar/ToolBar';
 import useLocalStorage from '../../Hooks/useLocalStorage';
@@ -20,6 +20,7 @@ const Container = () => {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [currentDialog, setCurrentDialog] = useState<JSX.Element>();
     const [liveStateRef, setLiveStateRef] = useState<LoomState>(currentState);
+    const [cameraMode, setCameraMode] = useState<CameraMode>(CameraMode.Orthographic);
 
     const updateLiveStateRef = (ref: LoomState) => {
         setLiveStateRef(ref);
@@ -128,10 +129,14 @@ const Container = () => {
                 onLoad={handleLoad}
                 onLoadPreset={handleLoadPreset}
                 onSaveAs={handleSaveAsClickOpen}
-                onSave={handleSave}/>
+                onSave={handleSave}
+                onDimensionChange={ (newMode) => setCameraMode(newMode) }/>
             <Loom
                 currentState={currentState}
-                onChange={updateLiveStateRef}/>
+                onChange={updateLiveStateRef}
+                cameraMode={cameraMode}/>
+
+            {/* if dialog is open show current dialog */}
             {openDialog && currentDialog}
             {/* Dialog if Save As or Create New are selected in the file menu */}
         </div>

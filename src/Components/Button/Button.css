@@ -4,7 +4,8 @@
 }
 
 .isActive {
-    background-color: gray;
+    /* background-color: gray; */
+    background-image: url(../../Images/btn-bg1.png);
 }
 
 .button:hover {

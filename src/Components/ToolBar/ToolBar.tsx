@@ -1,4 +1,4 @@
-import { LoomState, LoomStateDict, LoomStateStringRepresentation, SerializedLoomState } from "../../types";
+import { CameraMode, LoomState, LoomStateDict, LoomStateStringRepresentation, SerializedLoomState } from "../../types";
 import { createLoomStateFromStringDataRepesentation } from "../../utils";
 import ToolBarMenu from "../ToolBarMenu/ToolBarMenu";
 import ToolBarMenuNode from "../ToolBarMenuNode/ToolBarMenuNode";
@@ -11,7 +11,8 @@ interface ToolBarProps {
     onSaveAs: (...args: any) => void,
     onSave: (...args: any) => void,
     onLoadPreset: (state: LoomState) => void,
-    onCreateNew: (...args: any) => void
+    onCreateNew: (...args: any) => void,
+    onDimensionChange: (...args: any) => void
 }
 
 const ToolBar = (props: ToolBarProps) => {
@@ -41,6 +42,7 @@ const ToolBar = (props: ToolBarProps) => {
     }
     
     return (
+        <>
         <ToolBarMenu name={"File"}>
             <ToolBarMenuNode
                 text="Create New"
@@ -63,6 +65,18 @@ const ToolBar = (props: ToolBarProps) => {
                 {[...presetStateToolBarMenuNodes(presetPatterns)]}
             </ToolBarMenuNode>
         </ToolBarMenu>
+        <ToolBarMenu name={"View"}>
+            <ToolBarMenuNode
+                text="Dimensions">
+                <ToolBarMenuNode
+                    text="2D"
+                    onClick={ () => props.onDimensionChange(CameraMode.Orthographic) }/>
+                <ToolBarMenuNode
+                    text="3D"
+                    onClick={ () => props.onDimensionChange(CameraMode.Perspective) }/>
+            </ToolBarMenuNode>
+        </ToolBarMenu>
+        </>
     )
 }
 
