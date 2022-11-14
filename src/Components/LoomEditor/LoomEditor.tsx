@@ -1,15 +1,12 @@
-import React, { useEffect, useReducer, useRef, useState } from "react";
-import WeaveDisplay from "../WeaveDisplay/WeaveDisplay"
+import { useEffect, useReducer, useState } from "react";
 import ButtonGrid from "../ButtonGrid/ButtonGrid"
-import { LoomActionType, LoomAction, LoomState, Harness, Treadle, Thread, DrawingInstruction, Color, LoomDimensions, Orientation, SubGridType, ThreadDataSource, DrawingInstructionWGL, CameraMode } from '../../types';
-import { createThread, createTreadle, createHarness, dimensionDefault, defaultWarpThread, defaultWeftThread, defaultWarpThreadColor, defaultWeftThreadColor, createLoomState, setRectangle, defaultWarpThreadPaletteIndex, defaultWeftThreadPaletteIndex } from '../../utils';
+import { LoomActionType, LoomAction, LoomState, Harness, Treadle, Thread, LoomDimensions, Orientation, SubGridType, ThreadDataSource, CameraMode } from '../../types';
+import { createThread, createTreadle, createHarness, dimensionDefault, createLoomState, defaultWarpThreadPaletteIndex, defaultWeftThreadPaletteIndex } from '../../utils';
 import './LoomEditor.scss'
 import { DimensionsEditor } from "../DimensionsEditor/DimensionsEditor";
-import { SaveLoadMenu } from "../SaveLoadMenu/SaveLoadMenu";
 import { ThreadEditor } from "../ThreadEditor/ThreadEditor";
 import ThreadButtonGrid from "../ThreadButtonGrid/ThreadButtonGrid";
 import ImageEditor from "../ImageEditor/ImageEditor";
-import { serialize } from "node:v8";
 import Scene from "../WeaveDisplay/WeaveDisplayThree";
 import { Canvas } from 'react-three-fiber';
 var cloneDeep = require('lodash/cloneDeep');
@@ -119,7 +116,6 @@ function reducer(state: LoomState, action: LoomAction): LoomState {
         case LoomActionType.SET_STATE:
             const newState = action.state;
             return newState;
-            break;
         case LoomActionType.SET_WARPTHREADTHREADPALETTEINDEX:
             // stateCopy.warpThreads[action.warpThreadID].dataSource = stateCopy.indexedThreadPalette.threadPalette[stateCopy.indexedThreadPalette.selectedIndex];
             stateCopy.warpThreads[action.warpThreadID].threadPaletteIndex = stateCopy.indexedThreadPalette.selectedIndex;
@@ -136,9 +132,8 @@ function reducer(state: LoomState, action: LoomAction): LoomState {
             break;
         case LoomActionType.SET_SELECTEDTHREADDATASOURCEINDEX:
             stateCopy.indexedThreadPalette.selectedIndex = action.dataSourceIndex;
-        // case LoomActionyType.SET_
+            break;
     }
-    // actions
     return stateCopy;
 }
 
@@ -154,18 +149,14 @@ const Loom = (props: LoomProps) => {
     // IMAGE PROPERTIES
     const [imageCellSize, setImageCellSize] = useState<number>(16);
     const [imageScale, setImageScale] = useState<number>(1);
-    const [imageThreadWidth, setImageThreadWidth] = useState<number>(100);
-    const [imageBackgroundColor, setImageBackgroundColor] = useState<string>("#000000");
-    const [imageUnitSize, setImageUnitSize] = useState<number>(imageCellSize);
-    const [imageUnitCellLock, setImageUnitCellLock] = useState<boolean>(true);
 
     useEffect(() => {
         dispatch({ type: LoomActionType.SET_STATE, state: props.currentState });
-    }, [props.currentState]); //, [(props.currentState)]
+    }, [props.currentState]);
 
     useEffect(() => {
         props.onChange(state);
-    }, [state]);
+    }, [props, state]);
 
     const loomGridOnClickEventHandler = (e: any, type: SubGridType) => {
         const target = e.target as HTMLDivElement;
@@ -219,56 +210,6 @@ const Loom = (props: LoomProps) => {
         return gridValues;
     }
 
-    // const standardWarpDrawInstruction = (x: number, y: number, width: number, height: number, color: string) : DrawingInstruction => {
-    //     return ((ctx: CanvasRenderingContext2D) => {
-    //         ctx.rect(x,y,width,height);
-    //         ctx.fillStyle = color;
-    //     })
-    // }
-
-    // const standardWeftDrawInstruction = (y: number, width: number, height: number, color: string) : DrawingInstruction => {
-    //     return ((ctx: CanvasRenderingContext2D) => {
-    //         ctx.rect(0, y, width, height);
-    //         ctx.fillStyle = color;
-    //     })
-    // }
-
-    // const backgroundWarpDrawInstruction = (x: number, width: number, height: number, color: string) : DrawingInstruction => {
-    //     return ((ctx: CanvasRenderingContext2D) => {
-    //         ctx.rect(x, 0, width, height);
-    //         ctx.fillStyle = color;
-    //     })
-    // }
-
-    // const weaveDisplayDrawingInstructions = (state: LoomState): DrawingInstruction[] => {
-    //     const instructions : DrawingInstruction[] = [];
-    //     const size = imageCellSize;
-    //     const threadSize = imageCellSize * (imageThreadWidth / 100.);
-    //     const halfThreadSizeDifference = (size - threadSize);
-    //     const hTSD = halfThreadSizeDifference;
-
-    //     state.warpThreads.forEach((warpThread, col) => {
-    //         instructions.push(backgroundWarpDrawInstruction((col*size)+hTSD, size-hTSD, state.weftThreads.length*size, warpThread.dataSource.color));
-    //     })
-
-    //     state.weftThreads.forEach((weftThread, row) => {
-    //         // instructions.push(standardWeftDrawInstruction(row*size, state.warpThreads.length*size, size, weftThread.dataSource.color))
-    //         instructions.push(standardWeftDrawInstruction((row*size)+hTSD, state.warpThreads.length*size, size-hTSD, weftThread.dataSource.color))
-    //     })
-
-    //     state.treadlingInstructions.forEach((treadle, row) => {
-    //         if(treadle){
-    //             treadle.harnesses.forEach(harness => {
-    //                 harness.threads.forEach(warpThread => {
-    //                     instructions.push(standardWarpDrawInstruction((warpThread.id*size)+hTSD, row*size, size-hTSD, size+hTSD, warpThread.dataSource.color));
-    //                 })
-    //             })
-    //         }
-    //     })
-
-    //     return instructions;
-    // }
-
     // array to be used for generating datatexture,
     const weaveDisplayColorBuffer = (state: LoomState): string[] => {
         const width = state.dimensions.warpCount;
@@ -289,90 +230,6 @@ const Loom = (props: LoomProps) => {
         });
         return colorBuffer;
     }
-
-    // const standardWarpDrawInstructionWGL = (x: number, y: number, width: number, height: number, color: string) : DrawingInstructionWGL => {
-    //     return ((ctx, colorLocation, program) => {
-    //         // ctx.rect(x,y,width,height);
-    //         // ctx.fillStyle = color;
-    //         setRectangle(ctx, col*size, row*size, size, size);
-
-    //         ctx.uniform4f(colorLocation, );
-
-    //         var primitiveType = ctx.TRIANGLES;
-    //         var offset = 0;
-    //         var count = 6;
-    //         ctx.drawArrays(primitiveType, offset, count);
-    //     })
-    // }
-
-    // const standardWeftDrawInstructionWGL = (y: number, width: number, height: number, color: string) : DrawingInstructionWGL => {
-    //     return ((ctx, colorLocation, program) => {
-    //         ctx.rect(0, y, width, height);
-    //         ctx.fillStyle = color;
-    //     })
-    // }
-
-    // const backgroundWarpDrawInstructionWGL = (x: number, width: number, height: number, color: string) : DrawingInstructionWGL => {
-    //     return ((ctx, colorLocation, program) => {
-    //         ctx.rect(x, 0, width, height);
-    //         ctx.fillStyle = color;
-    //     })
-    // }
-
-    // const WeaveDisplayDrawingInstructionsWGL = (state: LoomState) : DrawingInstructionWGL[] => {
-    //     const drawingInstructions: DrawingInstructionWGL[] = [];
-    //     const size = imageCellSize;
-    //     const threadSize = imageCellSize * (imageThreadWidth / 100.);
-    //     const halfThreadSizeDifference = (size - threadSize);
-    //     const hTSD = halfThreadSizeDifference;
-
-    //     state.warpThreads.forEach((warpThread, col) => {
-    //         instructions.push(backgroundWarpDrawInstruction((col*size)+hTSD, size-hTSD, state.weftThreads.length*size, warpThread.dataSource.color));
-    //     })
-
-    //     state.weftThreads.forEach((weftThread, row) => {
-    //         // instructions.push(standardWeftDrawInstruction(row*size, state.warpThreads.length*size, size, weftThread.dataSource.color))
-    //         instructions.push(standardWeftDrawInstruction((row*size)+hTSD, state.warpThreads.length*size, size-hTSD, weftThread.dataSource.color))
-    //     })
-
-    //     state.treadlingInstructions.forEach((treadle, row) => {
-    //         if(treadle){
-    //             treadle.harnesses.forEach(harness => {
-    //                 harness.threads.forEach(warpThread => {
-    //                     instructions.push(standardWarpDrawInstruction((warpThread.id*size)+hTSD, row*size, size-hTSD, size+hTSD, warpThread.dataSource.color));
-    //                 })
-    //             })
-    //         }
-    //     })
-
-    /* OUTLINE OF INSTRUCTION
-    
-    setRectangle(glctx, x, y, w, h); (in utils)
-
-    // Set a color
-    gl.uniform4f(colorLocation, r, g, b, a)
-
-    // Draw the rectangle.
-    var primitiveType = gl.TRIANGLES;
-    var offset = 0;
-    var count = 6;
-    gl.drawArrays(primitiveType, offset, count);
-    
-    */
-
-    // drawingInstructions.push((ctx, colorLocation, program) => {
-    //     setRectangle(ctx, col*size, row*size, size, size);
-
-    //     ctx.uniform4f(colorLocation, );
-
-    //     var primitiveType = ctx.TRIANGLES;
-    //     var offset = 0;
-    //     var count = 6;
-    //     ctx.drawArrays(primitiveType, offset, count);
-    // })
-
-    //     return drawingInstructions;
-    // }
 
     const handleDimensionsChange = (dimensions: LoomDimensions) => {
         dispatch({ type: LoomActionType.SET_HARNESSCOUNT, harnessCount: dimensions.harnessCount });
