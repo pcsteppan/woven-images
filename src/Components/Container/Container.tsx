@@ -6,17 +6,22 @@ import { CameraMode, LoomState, LoomStateDict, SerializedLoomState } from '../..
 import ToolBarFileMenu from '../ToolBar/ToolBar';
 import ToolBar from '../ToolBar/ToolBar';
 import useLocalStorage from '../../Hooks/useLocalStorage';
-import { convertJSONToLoomState, convertLoomStateToJSON, createLoomState, createUUID, dimensionDefault } from '../../utils';
+import { convertJSONToLoomState, convertLoomStateToJSON, createLoomState, createLoomStateFromStringDataRepesentation, createUUID, dimensionDefault } from '../../utils';
 import { JsxElement, reduceEachLeadingCommentRange } from 'typescript';
 import Dialog from '../Dialog/Dialog';
 import { Line } from '@react-three/drei';
+import { getPresetPattern } from '../../presets/presetWeavingPatterns';
 var cloneDeep = require('lodash/cloneDeep');
 
 
 const Container = () => {
     const [saveStateDict, setSaveStateDict] = useLocalStorage<LoomStateDict>('saveStates', {});
     const [saveStateNames, setSaveStateNames] = useLocalStorage<{ [id: string]: string }>('saveStateNames', {});
-    const initialState: LoomState = createLoomState(dimensionDefault);
+    // const initialState: LoomState = createLoomState(dimensionDefault);
+    const initialPreset = getPresetPattern("Cross of Tennessee");
+    const initialState: LoomState = initialPreset
+        ? createLoomStateFromStringDataRepesentation(initialPreset)
+        : createLoomState(dimensionDefault);
     const [currentState, setCurrentState] = useState<LoomState>(initialState);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [currentDialog, setCurrentDialog] = useState<JSX.Element>();
@@ -51,9 +56,8 @@ const Container = () => {
         setCurrentDialog(ExportAsPngDialog);
         setOpenDialog(true);
     }
-    //
 
-    // DIALOG HANDLERS
+    // DIALOG - HANDLERS
     const handleCreateNew = (e: any) => {
         setOpenDialog(false);
         e.preventDefault();
@@ -93,16 +97,17 @@ const Container = () => {
                 : rawFileName + '.png';
         downloadLink.setAttribute('download', fileName);
         const canvas: HTMLCanvasElement | null = document.querySelector('.CanvasWrapper > canvas');
-        if (canvas) {
-            const link = document.createElement('a');
-            link.setAttribute('download', fileName);
-            link.setAttribute('href', canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream'));
-            link.click();
-        } else {
+
+        if (!canvas) {
             console.error("Couldn't find canvas element");
+            return;
         }
+
+        const link = document.createElement('a');
+        link.setAttribute('download', fileName);
+        link.setAttribute('href', canvas!.toDataURL('image/png').replace('image/png', 'image/octet-stream'));
+        link.click();
     }
-    //
 
     const handleClose = () => {
         setOpenDialog(false);

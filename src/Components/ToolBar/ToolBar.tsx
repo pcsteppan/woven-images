@@ -2,7 +2,7 @@ import { CameraMode, LoomState, LoomStateDict, LoomStateStringRepresentation, Se
 import { createLoomStateFromStringDataRepesentation } from "../../utils";
 import ToolBarMenu from "../ToolBarMenu/ToolBarMenu";
 import ToolBarMenuNode from "../ToolBarMenuNode/ToolBarMenuNode";
-import { patterns as presetPatterns } from '../../presets/presetWeavingPatterns'
+import { presetPatterns as presetPatterns } from '../../presets/presetWeavingPatterns'
 
 interface ToolBarProps {
     saveStateDict: LoomStateDict,

@@ -1,14 +1,14 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { LoomDimensions, LoomState, LoomStateStringRepresentation } from "../../types"
 import { createLoomState, createLoomStateFromStringDataRepesentation, decamelize } from "../../utils";
-import { patterns as presetPatterns } from '../../presets/presetWeavingPatterns'
+import { presetPatterns as presetPatterns } from '../../presets/presetWeavingPatterns'
 import '../DimensionsEditor/DimensionsEditor.css'
 import './SaveLoadMenu.css'
 import useLocalStorage from "../../Hooks/useLocalStorage";
 
 interface SaveLoadMenuProps {
     currentState: LoomState,
-    onLoadSave : (...args: any) => void
+    onLoadSave: (...args: any) => void
 }
 
 export const SaveLoadMenu = (props: SaveLoadMenuProps) => {
@@ -23,9 +23,9 @@ export const SaveLoadMenu = (props: SaveLoadMenuProps) => {
         setSaveStates(filteredSaveStates);
     }
 
-    const stateAsListItem = (state : LoomState, index: number) => {
+    const stateAsListItem = (state: LoomState, index: number) => {
         return (
-            <li id={"saveFile-"+index.toString()} className="FileListItem">
+            <li id={"saveFile-" + index.toString()} className="FileListItem">
                 <input type="textfield" className="FileName" value={state.name}></input>
                 <button className="OverwriteBtn" onClick={handleOverwriteSave}>Overwrite</button>
                 <button className="LoadBtn" onClick={() => props.onLoadSave(state)}>Load</button>
@@ -34,17 +34,17 @@ export const SaveLoadMenu = (props: SaveLoadMenuProps) => {
         )
     }
 
-    const saveStateListItems = (states : LoomState[]) : JSX.Element[] => {
-        return states.map((state : LoomState, i) => stateAsListItem(state, i));
+    const saveStateListItems = (states: LoomState[]): JSX.Element[] => {
+        return states.map((state: LoomState, i) => stateAsListItem(state, i));
     }
 
-    const presetStateListItems = (stateStrings : Array<LoomStateStringRepresentation>) : JSX.Element[] => {
+    const presetStateListItems = (stateStrings: Array<LoomStateStringRepresentation>): JSX.Element[] => {
         return stateStrings
-                .map(stateString => createLoomStateFromStringDataRepesentation(stateString))
-                .map((state, i) => stateAsListItem(state, i+saveStates.length));
+            .map(stateString => createLoomStateFromStringDataRepesentation(stateString))
+            .map((state, i) => stateAsListItem(state, i + saveStates.length));
     }
 
-    const handleOverwriteSave = (e : any) => {
+    const handleOverwriteSave = (e: any) => {
         const index = e.target.id.split('-')[1];
         const saveStatesCopy = [...saveStates];
         saveStatesCopy[index] = props.currentState;
@@ -59,13 +59,13 @@ export const SaveLoadMenu = (props: SaveLoadMenuProps) => {
         <div className="Panel">
             <h1 className="FormHeader">Save+Load File</h1>
             <div className="SaveLoadContainer">
-            <div className="PanelContent">
-                <ol>
-                    {saveStateListItems(saveStates)}
-                    {presetStateListItems(presetPatterns)}
-                </ol>
-                <button className="SaveBtn" onClick={handleSaveState}>Save As New</button>
-            </div>
+                <div className="PanelContent">
+                    <ol>
+                        {saveStateListItems(saveStates)}
+                        {presetStateListItems(presetPatterns)}
+                    </ol>
+                    <button className="SaveBtn" onClick={handleSaveState}>Save As New</button>
+                </div>
             </div>
         </div>
     )
