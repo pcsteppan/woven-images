@@ -324,18 +324,8 @@ const Loom = (props: LoomProps) => {
                     <form className="ImageEditorForm">
                         <label style={{ verticalAlign: "top" }} htmlFor="cellSize">cell size </label>
                         <input type="range" min="2" max="16" defaultValue="16" id="cellSizeSlider" onChange={({ target }) => setImageCellSize(parseInt(target.value))} /><br />
-
-                        {/* <label style={{verticalAlign: "top"}} htmlFor="cellSize">cell size </label>
-                        <input type="range" min="2" max="16" defaultValue="16" id="cellSizeSlider" onChange={({target}) => setImageCellSize(parseInt(target.value))}/><br/> */}
-
                         <label style={{ verticalAlign: "top" }} htmlFor="scaleSlider">pattern scale </label>
                         <input type="range" min="1" max="16" defaultValue="1" id="scaleSlider" onChange={({ target }) => setImageScale(parseInt(target.value))} /><br />
-
-                        {/* <label style={{verticalAlign: "top"}} htmlFor="threadWidthSlider">thread width </label>
-                        <input type="range" min="0" max="100" defaultValue="100" id="threadWidthSlider" onChange={({target}) => setImageThreadWidth(parseInt(target.value))}/><br/> */}
-
-                        {/* <label style={{verticalAlign: "top"}} htmlFor="threadWidthSlider">background color </label>
-                        <input type="color" defaultValue="#000000" id="background" className="ColorPicker" onChange={({target}) => setImageBackgroundColor((target.value))}/><br/> */}
                     </form>
                 </ImageEditor>
                 <ThreadEditor
