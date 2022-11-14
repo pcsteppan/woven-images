@@ -1,20 +1,21 @@
 # Woven Images
-Woven Images is a web app for viewing and crafting drafts for woven patterns.
-Built with typescript, react, and threeJS.
+Woven Images is a web app for viewing and crafting drafts for woven patterns. Includes many presets to play around with.
+Built with TypeScript, React, and ThreeJS.
 
 ![A screen capture of the web application in use with a complex weaving pattern](./src/Images/woven-images-1.png)
 
 ## Future development plans
 
-1. Create new / Load from save or preset dialog on first open
-	a. use local storage to track use history
-2. Resolve UX issues with thread palette color picker (updates)
-3. Thread width implemented in fragment shader
-4. Repetition support for treadling instructions
-5. Filters for draft inputs (applying noise, shifting, markov chains)
-6. More expressive Thread Palette editor
+1. Resolve UX issues with thread palette color picker (updates)
+2. Thread width implemented in fragment shader
+3. Repetition support for treadling instructions
+4. Filters for draft inputs (applying noise, shifting, markov chains)
+5. More expressive Thread Palette editor
 	a. animations
 	b. patterns
 	c. gradients
-7. Improve dimension editing to add or remove any column or row
-8. Download as PNG
+6. Improve dimension editing to add or remove any column or row
+7. Use of bitmap fonts for threading and treadling data to create woven words
+8. Box select and move selections
+9. Allow deleting treadles and threads 
+10. Add history/undo capabilities

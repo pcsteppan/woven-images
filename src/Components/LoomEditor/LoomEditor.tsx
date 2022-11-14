@@ -9,6 +9,7 @@ import ThreadButtonGrid from "../ThreadButtonGrid/ThreadButtonGrid";
 import ImageEditor from "../ImageEditor/ImageEditor";
 import Scene from "../WeaveDisplay/WeaveDisplayThree";
 import { Canvas } from 'react-three-fiber';
+import { InfoPanel } from "../InfoPanel/InfoPanel";
 var cloneDeep = require('lodash/cloneDeep');
 
 function reducer(state: LoomState, action: LoomAction): LoomState {
@@ -333,6 +334,8 @@ const Loom = (props: LoomProps) => {
                     onSetThreadDataSource={handleSetThreadDataSource}
                     onAddThreadDataSource={handleOnAddThreadDataSource}
                     indexedThreadPalette={state.indexedThreadPalette} />
+                <div className="divider" />
+                <InfoPanel />
             </div>
         </div>
     )

@@ -1,15 +1,11 @@
 import './Container.scss';
 import Loom from '../LoomEditor/LoomEditor';
-// import { SaveLoadMenu } from '../SaveLoadMenu/SaveLoadMenu';
-import React, { ReactElement, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { CameraMode, LoomState, LoomStateDict, SerializedLoomState } from '../../types';
-import ToolBarFileMenu from '../ToolBar/ToolBar';
 import ToolBar from '../ToolBar/ToolBar';
 import useLocalStorage from '../../Hooks/useLocalStorage';
 import { convertJSONToLoomState, convertLoomStateToJSON, createLoomState, createLoomStateFromStringDataRepesentation, createUUID, dimensionDefault } from '../../utils';
-import { JsxElement, reduceEachLeadingCommentRange } from 'typescript';
 import Dialog from '../Dialog/Dialog';
-import { Line } from '@react-three/drei';
 import { getPresetPattern } from '../../presets/presetWeavingPatterns';
 var cloneDeep = require('lodash/cloneDeep');
 
@@ -17,7 +13,6 @@ var cloneDeep = require('lodash/cloneDeep');
 const Container = () => {
     const [saveStateDict, setSaveStateDict] = useLocalStorage<LoomStateDict>('saveStates', {});
     const [saveStateNames, setSaveStateNames] = useLocalStorage<{ [id: string]: string }>('saveStateNames', {});
-    // const initialState: LoomState = createLoomState(dimensionDefault);
     const initialPreset = getPresetPattern("Cross of Tennessee");
     const initialState: LoomState = initialPreset
         ? createLoomStateFromStringDataRepesentation(initialPreset)
