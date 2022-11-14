@@ -87,6 +87,9 @@ export type LoomStateStringRepresentation = {
   }
 }
 
+// alias
+export type Preset = LoomStateStringRepresentation;
+
 export type Harness = {
   threads: Set<Thread>
 }
