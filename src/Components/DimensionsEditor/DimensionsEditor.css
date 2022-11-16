@@ -14,3 +14,12 @@
 .ApplyBtn {
     width: 100%;
 }
+
+.input-dimension {
+    border-bottom: 1px dotted white;
+    display: block;
+}
+
+.input-dimension:focus {
+    outline: 1px solid white;
+}

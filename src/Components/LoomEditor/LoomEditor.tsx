@@ -322,12 +322,10 @@ const Loom = (props: LoomProps) => {
                     onDimensionsChange={handleDimensionsChange}
                 />
                 <ImageEditor>
-                    <form className="ImageEditorForm">
-                        <label style={{ verticalAlign: "top" }} htmlFor="cellSize">cell size </label>
-                        <input type="range" min="2" max="16" defaultValue="16" id="cellSizeSlider" onChange={({ target }) => setImageCellSize(parseInt(target.value))} /><br />
-                        <label style={{ verticalAlign: "top" }} htmlFor="scaleSlider">pattern scale </label>
-                        <input type="range" min="1" max="16" defaultValue="1" id="scaleSlider" onChange={({ target }) => setImageScale(parseInt(target.value))} /><br />
-                    </form>
+                    <label style={{ verticalAlign: "top" }} htmlFor="cellSize">cell size </label>
+                    <input type="range" min="2" max="16" defaultValue="16" name="cellSize" id="cellSizeSlider" onChange={({ target }) => setImageCellSize(parseInt(target.value))} />
+                    <label style={{ verticalAlign: "top" }} htmlFor="scaleSlider">pattern scale </label>
+                    <input type="range" min="1" max="16" defaultValue="1" name="scaleSlider" id="scaleSlider" onChange={({ target }) => setImageScale(parseInt(target.value))} />
                 </ImageEditor>
                 <ThreadEditor
                     onSelectThreadDataSource={handleSelectThreadDataSource}

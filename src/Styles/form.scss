@@ -1,5 +1,5 @@
 [class$="Btn"] {
-    background-color: rgb(0,0,0);
+    background-color: rgb(0, 0, 0);
     border: 1px dotted white;
     color: white;
     padding: 4px 8px;
@@ -13,6 +13,7 @@ select {
     color: white;
     background-color: black;
     border: none;
+
     option {
         color: white;
         background-color: black;
@@ -23,6 +24,52 @@ input {
     background-color: black;
     border: none;
     color: white;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+
+    &:focus {
+        outline: none;
+    }
+
+    &::-moz-range-track,
+    &::-webkit-slider-runnable-track {
+        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAAXNSR0IArs4c6QAAABlJREFUCJljYICC/////2cgzEEH/////w8AHkIP8ekWXYgAAAAASUVORK5CYII=);
+        height: .25rem;
+    }
+
+    &::-moz-range-thumb,
+    &::-webkit-slider-thumb {
+        height: 1rem;
+        width: .66rem;
+        background: white;
+        border-radius: 0;
+    }
+}
+
+.input-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 1rem;
+    row-gap: .5rem;
+    align-items: center;
+
+    &-4 {
+        grid-template-columns: repeat(3, auto) 1fr;
+    }
+}
+
+.ApplyBtn {
+    grid-column: span 4;
+
+    &:disabled {
+        color: gray;
+
+        &:hover {
+            border: 1px dotted white;
+        }
+    }
 }
 
 .cancelBtn {
