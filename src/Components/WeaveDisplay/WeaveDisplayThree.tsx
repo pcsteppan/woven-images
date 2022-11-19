@@ -69,6 +69,8 @@ function Scene(props: SceneProps) {
     const canvasWidth = props.warpThreadCount * props.unitSize;
     const canvasHeight = props.weftThreadCount * props.unitSize;
 
+    const enableOrbitControls = props.cameraMode === CameraMode.Perspective;
+
     return (
         <>
             {(props.cameraMode === CameraMode.Orthographic) &&
@@ -84,7 +86,10 @@ function Scene(props: SceneProps) {
                     ref={perspectiveCameraRef}
                 />
             }
-            <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
+            <OrbitControls
+                enablePan={enableOrbitControls}
+                enableZoom={enableOrbitControls}
+                enableRotate={enableOrbitControls} />
             <mesh ref={myMesh}>
                 <planeGeometry attach='geometry' args={props.cameraMode === CameraMode.Orthographic ?
                     [canvasWidth, canvasHeight, 1, 1] :
