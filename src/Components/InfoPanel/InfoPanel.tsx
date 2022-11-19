@@ -16,6 +16,9 @@ export const InfoPanel: React.FunctionComponent = () => {
 			<p className="info">
 				Lastly, you can also view the pattern in 3D by going to <strong>View &gt; 3D</strong>. From there you can left-click to rotate, scroll to zoom, and right-click to pan.
 			</p>
+			<p className='info'>
+				Please report issues or request new features on <a href="https://github.com/pcsteppan/woven-images/issues">github.</a>
+			</p>
 		</div >
 	)
 }
