@@ -7,6 +7,8 @@ import useLocalStorage from '../../Hooks/useLocalStorage';
 import { convertJSONToLoomState, convertLoomStateToJSON, createLoomState, createLoomStateFromStringDataRepesentation, createUUID, dimensionDefault } from '../../utils';
 import Dialog from '../Dialog/Dialog';
 import { getPresetPattern } from '../../presets/presetWeavingPatterns';
+import { ScriptBox } from '../ScriptBox/ScriptBox';
+import { useStateWithScriptBox } from '../ScriptBox/ScriptBoxHelpers';
 var cloneDeep = require('lodash/cloneDeep');
 
 
@@ -17,7 +19,7 @@ const Container = () => {
     const initialState: LoomState = initialPreset
         ? createLoomStateFromStringDataRepesentation(initialPreset)
         : createLoomState(dimensionDefault);
-    const [currentState, setCurrentState] = useState<LoomState>(initialState);
+    const [currentState, setCurrentState, handleCurrentStateScriptBox] = useStateWithScriptBox(initialState);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [currentDialog, setCurrentDialog] = useState<JSX.Element>();
     const [liveStateRef, setLiveStateRef] = useState<LoomState>(currentState);
@@ -183,6 +185,8 @@ const Container = () => {
             {/* if dialog is open show current dialog */}
             {openDialog && currentDialog}
             {/* Dialog if Save As or Create New are selected in the file menu */}
+
+            <ScriptBox transformState={handleCurrentStateScriptBox}></ScriptBox>
         </div>
     )
 }

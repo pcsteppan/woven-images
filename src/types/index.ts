@@ -56,7 +56,10 @@ export type LoomAction =
   | { type: LoomActionType.SET_SELECTEDTHREADDATASOURCE; dataSource: ThreadDataSource; }
 
 export type LoomDimensions = {
-  [property: string]: number
+  harnessCount: number,
+  treadleCount: number,
+  warpCount: number,
+  weftCount: number,
 }
 
 export type LoomState = {

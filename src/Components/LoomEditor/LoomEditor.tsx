@@ -232,7 +232,17 @@ const Loom = (props: LoomProps) => {
         return colorBuffer;
     }
 
+    const getValidDimension = (dimension: number) => {
+        return !isNaN(dimension) && dimension > 0 ? dimension : 1;
+    }
+
+    const getValidatedDimensions = (dimensions: LoomDimensions) => Object.fromEntries(
+        Object.entries(dimensions)
+            .map(([k, v]) => [k, getValidDimension(v)])
+    ) as LoomDimensions;
+
     const handleDimensionsChange = (dimensions: LoomDimensions) => {
+        dimensions = getValidatedDimensions(dimensions);
         dispatch({ type: LoomActionType.SET_HARNESSCOUNT, harnessCount: dimensions.harnessCount });
         dispatch({ type: LoomActionType.SET_TREADLECOUNT, treadleCount: dimensions.treadleCount });
         dispatch({ type: LoomActionType.SET_WARPCOUNT, warpCount: dimensions.warpCount });

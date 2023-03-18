@@ -27,25 +27,32 @@ input {
 }
 
 input[type="range"] {
-    -webkit-appearance: none;
 
     &:focus {
         outline: none;
     }
 
-    &::-moz-range-track,
-    &::-webkit-slider-runnable-track {
+    &::-moz-range-track {
         background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAAXNSR0IArs4c6QAAABlJREFUCJljYICC/////2cgzEEH/////w8AHkIP8ekWXYgAAAAASUVORK5CYII=);
         height: .25rem;
     }
 
-    &::-moz-range-thumb,
-    &::-webkit-slider-thumb {
+    &::-moz-range-thumb {
         height: 1rem;
         width: .66rem;
         background: white;
         border-radius: 0;
     }
+
+    // &::-webkit-slider-thumb {
+    //     -webkit-appearance: none;
+    //     border: 1px solid #000000;
+    //     cursor: pointer;
+    //     margin-top: -14px;
+    //     /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+    //     box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+    //     /* Add cool effects to your sliders! */
+    // }
 }
 
 .input-grid {

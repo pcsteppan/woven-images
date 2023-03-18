@@ -27,8 +27,9 @@ export const DimensionsEditor = (props: DimensionsEditorProps) => {
         setLocalDimensions({ ...localDimensions, [e.target.name]: parseInt(e.target.value) });
     }
 
-    const dimensionsAreUnmodified = useMemo(() => Object.keys(localDimensions).every(key => localDimensions[key] === props.dimensions[key])
-        , [props.dimensions, localDimensions]);
+    const dimensionsAreUnmodified = useMemo(() => Object.keys(localDimensions)
+        .every(key => localDimensions[key as keyof LoomDimensions] === props.dimensions[key as keyof LoomDimensions]),
+        [props.dimensions, localDimensions]);
 
     const formItems = Object.keys(props.dimensions).map((dimensionKey: string) => {
         return (
@@ -39,9 +40,9 @@ export const DimensionsEditor = (props: DimensionsEditorProps) => {
                     type="textfield"
                     name={dimensionKey}
                     onChange={handleChange}
-                    value={localDimensions[dimensionKey]} />
+                    value={localDimensions[dimensionKey as keyof LoomDimensions]} />
                 <span>→</span>
-                <p className="CurrentDimension" style={{ display: "inline" }}>{props.dimensions[dimensionKey]}</p>
+                <p className="CurrentDimension" style={{ display: "inline" }}>{props.dimensions[dimensionKey as keyof LoomDimensions]}</p>
             </>
         )
     })
