@@ -22,7 +22,7 @@ return {
 	const [script, setScript] = useState(() => Function('state', 'ctx', initialScript));
 	const [isActive, setIsActive] = useState(false);
 	const [delay, setDelay] = useState(400);
-	const [hidden, setHidden] = useState(false);
+	const [hidden, setHidden] = useState(true);
 
 	const onChange = useCallback((userCode: any) => {
 		try {
