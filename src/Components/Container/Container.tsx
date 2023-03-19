@@ -167,24 +167,26 @@ const Container = () => {
 
     return (
         <div className="Container">
-            <ToolBar
-                saveStateDict={saveStateDict}
-                saveStateNames={saveStateNames}
-                onCreateNew={handleCreateNewClickOpen}
-                onExportAsPng={handleExportAsPngClickOpen}
-                onLoad={handleLoad}
-                onLoadPreset={handleLoadPreset}
-                onSaveAs={handleSaveAsClickOpen}
-                onSave={handleSave}
-                onDimensionChange={(newMode) => setCameraMode(newMode)} />
-            <Loom
-                currentState={currentState}
-                onChange={updateLiveStateRef}
-                cameraMode={cameraMode} />
+            <div className="container-main">
+                <ToolBar
+                    saveStateDict={saveStateDict}
+                    saveStateNames={saveStateNames}
+                    onCreateNew={handleCreateNewClickOpen}
+                    onExportAsPng={handleExportAsPngClickOpen}
+                    onLoad={handleLoad}
+                    onLoadPreset={handleLoadPreset}
+                    onSaveAs={handleSaveAsClickOpen}
+                    onSave={handleSave}
+                    onDimensionChange={(newMode) => setCameraMode(newMode)} />
+                <Loom
+                    currentState={currentState}
+                    onChange={updateLiveStateRef}
+                    cameraMode={cameraMode} />
 
-            {/* if dialog is open show current dialog */}
-            {openDialog && currentDialog}
-            {/* Dialog if Save As or Create New are selected in the file menu */}
+                {/* if dialog is open show current dialog */}
+                {openDialog && currentDialog}
+                {/* Dialog if Save As or Create New are selected in the file menu */}
+            </div>
 
             <ScriptBox transformState={handleCurrentStateScriptBox}></ScriptBox>
         </div>

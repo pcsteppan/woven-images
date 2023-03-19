@@ -15,4 +15,11 @@
 
 .Container {
     height: 100%;
+    // display: grid;
+    // grid-template-columns: 1rem 1fr 1rem;
+    // grid-template-rows: auto;
+}
+
+.container-main {
+    padding: 1rem 2rem;
 }

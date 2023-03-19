@@ -6,12 +6,6 @@
 
 	border-top: 1px solid white;
 
-	span,
-	div {
-		font-family: 'Courier New', Courier, monospace;
-		// color: black;
-		font-size: 1rem;
-	}
 
 	&-form {
 		color: white;
@@ -30,7 +24,7 @@
 
 		&--delay {
 			border: 1px solid white;
-			font-family: 'Courier New', Courier, monospace;
+			font-family: monospace;
 			height: 100%;
 			width: 10ch;
 			padding: 0;
@@ -51,8 +45,7 @@
 		justify-content: space-between;
 		min-height: 2rem;
 
-		padding-top: .5rem;
-		padding-bottom: .5rem;
+		padding: .5rem 1rem;
 	}
 
 
