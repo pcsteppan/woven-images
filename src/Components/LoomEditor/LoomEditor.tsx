@@ -1,7 +1,6 @@
-import { useEffect, useReducer, useState } from "react";
+import { useState } from "react";
 import ButtonGrid from "../ButtonGrid/ButtonGrid"
-import { LoomActionType, LoomAction, LoomState, Harness, Treadle, Thread, LoomDimensions, Orientation, SubGridType, ThreadDataSource, CameraMode } from '../../types';
-import { createThread, createTreadle, createHarness, dimensionDefault, createLoomState, defaultWarpThreadPaletteIndex, defaultWeftThreadPaletteIndex } from '../../utils';
+import { LoomActionType, LoomState, Harness, Treadle, Thread, LoomDimensions, Orientation, SubGridType, ThreadDataSource, CameraMode } from '../../types';
 import './LoomEditor.scss'
 import { DimensionsEditor } from "../DimensionsEditor/DimensionsEditor";
 import { ThreadEditor } from "../ThreadEditor/ThreadEditor";
@@ -10,154 +9,18 @@ import ImageEditor from "../ImageEditor/ImageEditor";
 import Scene from "../WeaveDisplay/WeaveDisplayThree";
 import { Canvas } from 'react-three-fiber';
 import { InfoPanel } from "../InfoPanel/InfoPanel";
-var cloneDeep = require('lodash/cloneDeep');
 
-function reducer(state: LoomState, action: LoomAction): LoomState {
-    const stateCopy: LoomState = cloneDeep(state);
-
-    switch (action.type) {
-        case LoomActionType.SET_HARNESSTOTHREADATTACHMENTS:
-            // LEFT TABLE
-            { // block-scope for local consts
-                const harness: Harness = stateCopy.harnesses[action.harnessID];
-                const thread: Thread = stateCopy.warpThreads[action.threadID];
-
-                if (harness.threads.has(thread)) {
-                    harness.threads.delete(thread);
-                } else {
-                    for (let i = 0; i < stateCopy.harnesses.length; i++) {
-                        if (stateCopy.harnesses[i].threads.has(thread)) {
-                            stateCopy.harnesses[i].threads.delete(thread);
-                        }
-                    }
-                    harness.threads.add(thread);
-                }
-            }
-            break;
-        case LoomActionType.SET_TREADLETOHARNESSATTACHMENTS:
-            // TIEUP
-            { // block-scope for local consts
-                const treadle: Treadle = stateCopy.treadles[action.treadleID];
-                const harness: Harness = stateCopy.harnesses[action.harnessID];
-
-                if (treadle.harnesses.has(harness)) {
-                    treadle.harnesses.delete(harness);
-                } else {
-                    treadle.harnesses.add(harness);
-                }
-            }
-            break;
-        case LoomActionType.SET_TREADLINGINSTRUCTION:
-            // RIGHT TABLE
-            {
-                const treadle: Treadle = stateCopy.treadles[action.treadleID];
-                if (stateCopy.treadlingInstructions[action.instructionIndex] === treadle) {
-                    stateCopy.treadlingInstructions[action.instructionIndex] = null;
-                } else {
-                    stateCopy.treadlingInstructions[action.instructionIndex] = treadle;
-                }
-            }
-            break;
-        case LoomActionType.SET_HARNESSCOUNT:
-            if (action.harnessCount > stateCopy.harnesses.length) {
-                while (stateCopy.harnesses.length < action.harnessCount) {
-                    stateCopy.harnesses.unshift(createHarness());
-                }
-            } else {
-                const removedHarnesses = stateCopy.harnesses.splice(0, stateCopy.harnesses.length - action.harnessCount);
-                stateCopy.treadles.forEach(treadle => {
-                    removedHarnesses.forEach(harness => {
-                        treadle.harnesses.delete(harness);
-                    })
-                })
-            }
-            stateCopy.dimensions.harnessCount = action.harnessCount;
-            break;
-        case LoomActionType.SET_TREADLECOUNT:
-            if (action.treadleCount > stateCopy.treadles.length) {
-                while (stateCopy.treadles.length < action.treadleCount) {
-                    stateCopy.treadles.push(createTreadle());
-                }
-            } else {
-                const removedTreadles = stateCopy.treadles.splice(action.treadleCount);
-                stateCopy.treadlingInstructions.forEach(instruction => {
-                    removedTreadles.forEach(removedTreadle => {
-                        instruction = (instruction === removedTreadle) ? null : instruction;
-                    })
-                })
-            }
-            stateCopy.dimensions.treadleCount = action.treadleCount;
-            break;
-        case LoomActionType.SET_WARPCOUNT:
-            if (action.warpCount > state.warpThreads.length) {
-                while (stateCopy.warpThreads.length < action.warpCount) {
-                    stateCopy.warpThreads.unshift(createThread(stateCopy.warpThreads.length, defaultWarpThreadPaletteIndex));
-                }
-            } else {
-                stateCopy.warpThreads.splice(0, stateCopy.warpThreads.length - action.warpCount);
-            }
-            stateCopy.warpThreads.forEach((wt, i) => {
-                wt.id = i;
-            });
-            stateCopy.dimensions.warpCount = action.warpCount;
-            break;
-        case LoomActionType.SET_WEFTCOUNT:
-            // weft and treadling instruction
-            if (action.weftCount > state.weftThreads.length) {
-                while (stateCopy.weftThreads.length < action.weftCount) {
-                    stateCopy.weftThreads.push(createThread(stateCopy.weftThreads.length, defaultWeftThreadPaletteIndex));
-                    stateCopy.treadlingInstructions.push(null);
-                }
-            } else {
-                stateCopy.weftThreads.splice(action.weftCount);
-                stateCopy.treadlingInstructions.splice(action.weftCount);
-            }
-            stateCopy.dimensions.weftCount = action.weftCount;
-            break;
-        case LoomActionType.SET_STATE:
-            const newState = action.state;
-            return newState;
-        case LoomActionType.SET_WARPTHREADTHREADPALETTEINDEX:
-            // stateCopy.warpThreads[action.warpThreadID].dataSource = stateCopy.indexedThreadPalette.threadPalette[stateCopy.indexedThreadPalette.selectedIndex];
-            stateCopy.warpThreads[action.warpThreadID].threadPaletteIndex = stateCopy.indexedThreadPalette.selectedIndex;
-            break;
-        case LoomActionType.SET_WEFTTHREADTHREADPALETTEINDEX:
-            // stateCopy.weftThreads[action.weftThreadID].dataSource = stateCopy.indexedThreadPalette.threadPalette[stateCopy.indexedThreadPalette.selectedIndex];
-            stateCopy.weftThreads[action.weftThreadID].threadPaletteIndex = stateCopy.indexedThreadPalette.selectedIndex;
-            break;
-        case LoomActionType.SET_SELECTEDTHREADDATASOURCE:
-            stateCopy.indexedThreadPalette.threadPalette[stateCopy.indexedThreadPalette.selectedIndex] = action.dataSource;
-            break;
-        case LoomActionType.ADD_THREADDATASOURCE:
-            stateCopy.indexedThreadPalette.threadPalette.push(cloneDeep(action.dataSource));
-            break;
-        case LoomActionType.SET_SELECTEDTHREADDATASOURCEINDEX:
-            stateCopy.indexedThreadPalette.selectedIndex = action.dataSourceIndex;
-            break;
-    }
-    return stateCopy;
-}
 
 interface LoomProps {
-    currentState: LoomState,
-    onChange: (...args: any) => void,
-    cameraMode: CameraMode
+    state: any,
+    cameraMode: CameraMode,
+    dispatch: (...args: any) => void
 }
 
-const Loom = (props: LoomProps) => {
-    const [state, dispatch] = useReducer(reducer, createLoomState(dimensionDefault));
-
+const Loom = ({ cameraMode, dispatch, state }: LoomProps) => {
     // IMAGE PROPERTIES
     const [imageCellSize, setImageCellSize] = useState<number>(16);
     const [imageScale, setImageScale] = useState<number>(1);
-
-    useEffect(() => {
-        dispatch({ type: LoomActionType.SET_STATE, state: props.currentState });
-    }, [props.currentState]);
-
-    useEffect(() => {
-        props.onChange(state);
-    }, [props, state]);
 
     const loomGridOnClickEventHandler = (e: any, type: SubGridType) => {
         const target = e.target as HTMLDivElement;
@@ -304,7 +167,7 @@ const Loom = (props: LoomProps) => {
                                 unitSize={imageCellSize}
                                 repeats={imageScale}
                                 colorBuffer={weaveDisplayColorBuffer(state)}
-                                cameraMode={props.cameraMode}
+                                cameraMode={cameraMode}
                             />
                         </Canvas>
                         <div id="CanvasResizer"

@@ -1,6 +1,5 @@
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
-import { githubDark, githubDarkInit } from '@uiw/codemirror-theme-github';
 import { useCallback, useEffect, useState } from "react";
 import "./scriptbox.scss";
 import createTheme from '@uiw/codemirror-themes';
@@ -31,8 +30,6 @@ const ayuDarkModTheme = createTheme({
 		{ tag: t.function(t.variableName), color: dark.syntax.func.hex() },
 	]
 })
-
-var x = 2 || 'test';
 
 export interface ScriptBoxProps {
 	transformState: (f: Function) => void
@@ -76,6 +73,7 @@ return {
 		} else if (!isActive) {
 			clearInterval(interval);
 		}
+		console.log('useEffect: ScriptBox')
 		return () => clearInterval(interval);
 	}, [isActive, delay, script, transformState]);
 
@@ -111,7 +109,6 @@ return {
 				theme={ayuDarkModTheme}
 				basicSetup={{
 					foldGutter: false,
-					// lineNumbers: false,
 				}}
 			/>
 		</div>

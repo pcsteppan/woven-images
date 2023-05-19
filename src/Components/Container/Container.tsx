@@ -1,7 +1,8 @@
 import './Container.scss';
 import Loom from '../LoomEditor/LoomEditor';
-import { useState } from 'react';
-import { CameraMode, LoomState, LoomStateDict, SerializedLoomState } from '../../types';
+import { useReducer, useState } from 'react';
+import { CameraMode, LoomActionType, LoomState, Harness, Thread, Treadle, LoomAction, LoomStateDict, SerializedLoomState } from '../../types';
+import { createThread, createTreadle, createHarness, defaultWarpThreadPaletteIndex, defaultWeftThreadPaletteIndex } from '../../utils';
 import ToolBar from '../ToolBar/ToolBar';
 import useLocalStorage from '../../Hooks/useLocalStorage';
 import { convertJSONToLoomState, convertLoomStateToJSON, createLoomState, createLoomStateFromStringDataRepesentation, createUUID, dimensionDefault } from '../../utils';
@@ -12,6 +13,133 @@ import { useStateWithScriptBox } from '../ScriptBox/ScriptBoxHelpers';
 var cloneDeep = require('lodash/cloneDeep');
 
 
+
+function reducer(state: LoomState, action: LoomAction): LoomState {
+    const stateCopy: LoomState = cloneDeep(state);
+
+    switch (action.type) {
+        case LoomActionType.SET_HARNESSTOTHREADATTACHMENTS:
+            // LEFT TABLE
+            { // block-scope for local consts
+                const harness: Harness = stateCopy.harnesses[action.harnessID];
+                const thread: Thread = stateCopy.warpThreads[action.threadID];
+
+                if (harness.threads.has(thread)) {
+                    harness.threads.delete(thread);
+                } else {
+                    for (let i = 0; i < stateCopy.harnesses.length; i++) {
+                        if (stateCopy.harnesses[i].threads.has(thread)) {
+                            stateCopy.harnesses[i].threads.delete(thread);
+                        }
+                    }
+                    harness.threads.add(thread);
+                }
+            }
+            break;
+        case LoomActionType.SET_TREADLETOHARNESSATTACHMENTS:
+            // TIEUP
+            { // block-scope for local consts
+                const treadle: Treadle = stateCopy.treadles[action.treadleID];
+                const harness: Harness = stateCopy.harnesses[action.harnessID];
+
+                if (treadle.harnesses.has(harness)) {
+                    treadle.harnesses.delete(harness);
+                } else {
+                    treadle.harnesses.add(harness);
+                }
+            }
+            break;
+        case LoomActionType.SET_TREADLINGINSTRUCTION:
+            // RIGHT TABLE
+            {
+                const treadle: Treadle = stateCopy.treadles[action.treadleID];
+                if (stateCopy.treadlingInstructions[action.instructionIndex] === treadle) {
+                    stateCopy.treadlingInstructions[action.instructionIndex] = null;
+                } else {
+                    stateCopy.treadlingInstructions[action.instructionIndex] = treadle;
+                }
+            }
+            break;
+        case LoomActionType.SET_HARNESSCOUNT:
+            if (action.harnessCount > stateCopy.harnesses.length) {
+                while (stateCopy.harnesses.length < action.harnessCount) {
+                    stateCopy.harnesses.unshift(createHarness());
+                }
+            } else {
+                const removedHarnesses = stateCopy.harnesses.splice(0, stateCopy.harnesses.length - action.harnessCount);
+                stateCopy.treadles.forEach(treadle => {
+                    removedHarnesses.forEach(harness => {
+                        treadle.harnesses.delete(harness);
+                    })
+                })
+            }
+            stateCopy.dimensions.harnessCount = action.harnessCount;
+            break;
+        case LoomActionType.SET_TREADLECOUNT:
+            if (action.treadleCount > stateCopy.treadles.length) {
+                while (stateCopy.treadles.length < action.treadleCount) {
+                    stateCopy.treadles.push(createTreadle());
+                }
+            } else {
+                const removedTreadles = stateCopy.treadles.splice(action.treadleCount);
+                stateCopy.treadlingInstructions.forEach(instruction => {
+                    removedTreadles.forEach(removedTreadle => {
+                        instruction = (instruction === removedTreadle) ? null : instruction;
+                    })
+                })
+            }
+            stateCopy.dimensions.treadleCount = action.treadleCount;
+            break;
+        case LoomActionType.SET_WARPCOUNT:
+            if (action.warpCount > state.warpThreads.length) {
+                while (stateCopy.warpThreads.length < action.warpCount) {
+                    stateCopy.warpThreads.unshift(createThread(stateCopy.warpThreads.length, defaultWarpThreadPaletteIndex));
+                }
+            } else {
+                stateCopy.warpThreads.splice(0, stateCopy.warpThreads.length - action.warpCount);
+            }
+            stateCopy.warpThreads.forEach((wt, i) => {
+                wt.id = i;
+            });
+            stateCopy.dimensions.warpCount = action.warpCount;
+            break;
+        case LoomActionType.SET_WEFTCOUNT:
+            // weft and treadling instruction
+            if (action.weftCount > state.weftThreads.length) {
+                while (stateCopy.weftThreads.length < action.weftCount) {
+                    stateCopy.weftThreads.push(createThread(stateCopy.weftThreads.length, defaultWeftThreadPaletteIndex));
+                    stateCopy.treadlingInstructions.push(null);
+                }
+            } else {
+                stateCopy.weftThreads.splice(action.weftCount);
+                stateCopy.treadlingInstructions.splice(action.weftCount);
+            }
+            stateCopy.dimensions.weftCount = action.weftCount;
+            break;
+        case LoomActionType.SET_STATE:
+            const newState = action.state;
+            return newState;
+        case LoomActionType.SET_WARPTHREADTHREADPALETTEINDEX:
+            // stateCopy.warpThreads[action.warpThreadID].dataSource = stateCopy.indexedThreadPalette.threadPalette[stateCopy.indexedThreadPalette.selectedIndex];
+            stateCopy.warpThreads[action.warpThreadID].threadPaletteIndex = stateCopy.indexedThreadPalette.selectedIndex;
+            break;
+        case LoomActionType.SET_WEFTTHREADTHREADPALETTEINDEX:
+            // stateCopy.weftThreads[action.weftThreadID].dataSource = stateCopy.indexedThreadPalette.threadPalette[stateCopy.indexedThreadPalette.selectedIndex];
+            stateCopy.weftThreads[action.weftThreadID].threadPaletteIndex = stateCopy.indexedThreadPalette.selectedIndex;
+            break;
+        case LoomActionType.SET_SELECTEDTHREADDATASOURCE:
+            stateCopy.indexedThreadPalette.threadPalette[stateCopy.indexedThreadPalette.selectedIndex] = action.dataSource;
+            break;
+        case LoomActionType.ADD_THREADDATASOURCE:
+            stateCopy.indexedThreadPalette.threadPalette.push(cloneDeep(action.dataSource));
+            break;
+        case LoomActionType.SET_SELECTEDTHREADDATASOURCEINDEX:
+            stateCopy.indexedThreadPalette.selectedIndex = action.dataSourceIndex;
+            break;
+    }
+    return stateCopy;
+}
+
 const Container = () => {
     const [saveStateDict, setSaveStateDict] = useLocalStorage<LoomStateDict>('saveStates', {});
     const [saveStateNames, setSaveStateNames] = useLocalStorage<{ [id: string]: string }>('saveStateNames', {});
@@ -19,21 +147,23 @@ const Container = () => {
     const initialState: LoomState = initialPreset
         ? createLoomStateFromStringDataRepesentation(initialPreset)
         : createLoomState(dimensionDefault);
-    const [currentState, setCurrentState, handleCurrentStateScriptBox] = useStateWithScriptBox(initialState);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [currentDialog, setCurrentDialog] = useState<JSX.Element>();
-    const [liveStateRef, setLiveStateRef] = useState<LoomState>(currentState);
+    // const [liveStateRef, setLiveStateRef] = useState<LoomState>(currentState);
     const [cameraMode, setCameraMode] = useState<CameraMode>(CameraMode.Orthographic);
+    const [currentState, dispatch] = useReducer(reducer, initialState);
+    const handleCurrentStateScriptBox = useStateWithScriptBox(currentState, dispatch);
 
-    const updateLiveStateRef = (ref: LoomState) => {
-        setLiveStateRef(ref);
-    }
+    // const updateLiveStateRef = (ref: LoomState) => {
+    //     setLiveStateRef(ref);
+    //     dispatch(ref);
+    // }
 
     // save new state to state ref with ID
     const handleSave = () => {
-        const serializedLoomState: SerializedLoomState = convertLoomStateToJSON(liveStateRef);
-        setSaveStateDict({ ...saveStateDict, [liveStateRef.id]: serializedLoomState });
-        setSaveStateNames({ ...saveStateNames, [liveStateRef.id]: liveStateRef.name });
+        const serializedLoomState: SerializedLoomState = convertLoomStateToJSON(currentState);
+        setSaveStateDict({ ...saveStateDict, [currentState.id]: serializedLoomState });
+        setSaveStateNames({ ...saveStateNames, [currentState.id]: currentState.name });
     }
 
     // push new state with newly generated uuid with new name
@@ -62,7 +192,7 @@ const Container = () => {
         const newState = createLoomState(dimensionDefault);
         const newName = e.target["fileName"].value;
         newState.name = newName;
-        setCurrentState(newState);
+        dispatch({ type: LoomActionType.SET_STATE, state: newState });
     }
 
     const handleSaveAs = (e: any) => {
@@ -70,15 +200,15 @@ const Container = () => {
         e.preventDefault();
 
         const newUUID = createUUID();
-        const stateClone = cloneDeep(liveStateRef);
+        const stateClone = cloneDeep(currentState);
         const newName = e.target["newFileName"].value;
         stateClone.name = newName;
         stateClone.id = newUUID;
 
-        const serilizedState: SerializedLoomState = convertLoomStateToJSON(liveStateRef);
+        const serilizedState: SerializedLoomState = convertLoomStateToJSON(currentState);
         setSaveStateDict({ ...saveStateDict, [newUUID]: serilizedState });
         setSaveStateNames({ ...saveStateNames, [stateClone.id]: stateClone.name });
-        setCurrentState(stateClone);
+        dispatch(stateClone);
     }
 
     const handleExportAsPng = (e: any) => {
@@ -113,11 +243,11 @@ const Container = () => {
     const handleLoad = (stateID: string) => {
         const serializedState: SerializedLoomState = saveStateDict[stateID];
         const state: LoomState = convertJSONToLoomState(serializedState);
-        setCurrentState(state);
+        dispatch({ type: LoomActionType.SET_STATE, state: state });
     }
 
     const handleLoadPreset = (state: LoomState) => {
-        setCurrentState(state);
+        dispatch({ type: LoomActionType.SET_STATE, state: state });
     }
 
     const SaveAsDialog = (
@@ -125,7 +255,7 @@ const Container = () => {
             <form className="w100" onSubmit={handleSaveAs}>
                 <div className="w100">
                     <span>New file name:</span>
-                    <input type="text" name="newFileName" className="underline w100" placeholder={liveStateRef.name}></input>
+                    <input type="text" name="newFileName" className="underline w100" placeholder={currentState.name}></input>
                 </div>
                 <div className="w100" style={{ "marginTop": "1em" }}>
                     <button className="cancelBtn" style={{ "width": "50%" }} onClick={handleClose}>Cancel</button>
@@ -179,8 +309,8 @@ const Container = () => {
                     onSave={handleSave}
                     onDimensionChange={(newMode) => setCameraMode(newMode)} />
                 <Loom
-                    currentState={currentState}
-                    onChange={updateLiveStateRef}
+                    state={currentState}
+                    dispatch={dispatch}
                     cameraMode={cameraMode} />
 
                 {/* if dialog is open show current dialog */}

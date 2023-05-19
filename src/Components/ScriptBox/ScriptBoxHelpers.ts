@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { LoomAction, LoomActionType } from "../../types";
 
 export function createScriptCallHandler<T>(
 	state: T,
-	setState: (state: T) => void,
+	dispatch: React.Dispatch<LoomAction>,
 	validators: Array<(arg: Array<number>) => boolean>) {
 	return (scriptFunction: Function) => {
 		// console.log('starting transform')
@@ -14,7 +14,7 @@ export function createScriptCallHandler<T>(
 				console.log(failedValidators, state, potentialNewState);
 				return;
 			}
-			setState(potentialNewState);
+			dispatch({ type: LoomActionType.SET_STATE, state: potentialNewState });
 			// console.log('transform application successful:')
 			// console.log(state, "->", potentialNewState);
 		}
@@ -24,15 +24,13 @@ export function createScriptCallHandler<T>(
 	};
 }
 
-export function useStateWithScriptBox(initialState: any) {
-	const [state, setState] = useState(initialState);
-
+export function useStateWithScriptBox(state: any, setState: any) {
 	const handleScriptCall = createScriptCallHandler(state, setState, [
 		// (newState) => Array.isArray(newState),
 		// (newState) => newState.length === state.length,
 	]);
 
-	return [state, setState, handleScriptCall];
+	return handleScriptCall;
 }
 
 const editorContext = {
