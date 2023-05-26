@@ -9,10 +9,11 @@ import ImageEditor from "../ImageEditor/ImageEditor";
 import Scene from "../WeaveDisplay/WeaveDisplayThree";
 import { Canvas } from 'react-three-fiber';
 import { InfoPanel } from "../InfoPanel/InfoPanel";
+import { Panel } from "../Panel/Panel";
 
 
 interface LoomProps {
-    state: any,
+    state: LoomState,
     cameraMode: CameraMode,
     dispatch: (...args: any) => void
 }
@@ -124,6 +125,22 @@ const Loom = ({ cameraMode, dispatch, state }: LoomProps) => {
         dispatch({ type: LoomActionType.SET_SELECTEDTHREADDATASOURCE, dataSource: newthreadDataSource })
     }
 
+    const treadlingText: string = state.treadlingInstructions.map(instruction => state.treadles.findIndex(treadle => treadle === instruction)).join('');
+    // const threadingText = state.treadlingInstructions
+    // const tieupText = state.treadlingInstructions
+
+    const handleTreadlingChange = (e: any) => {
+
+    }
+
+    // const handleThreadingChange = (e: any) => {
+
+    // }
+
+    // const handleTieupChange = (e: any) => {
+
+    // }
+
     return (
         <div className="LoomEditorContainer">
             <div className="LoomPane">
@@ -205,6 +222,15 @@ const Loom = ({ cameraMode, dispatch, state }: LoomProps) => {
                     onSetThreadDataSource={handleSetThreadDataSource}
                     onAddThreadDataSource={handleOnAddThreadDataSource}
                     indexedThreadPalette={state.indexedThreadPalette} />
+                <Panel>
+                    <h1>Text Editors (experimental)</h1>
+                    Treadling
+                    <textarea className="EditorPanes--text-editors" value={treadlingText} onChange={handleTreadlingChange}></textarea>
+                    {/* Threading
+                    <textarea className="EditorPanes--text-editors" value={threadingText} onChange={handleThreadingChange}></textarea>
+                    Tie-up
+                    <textarea className="EditorPanes--text-editors" value={tieupText} onChange={handleTieupChange}></textarea> */}
+                </Panel>
                 <div className="divider" />
                 <InfoPanel />
             </div>

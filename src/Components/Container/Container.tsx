@@ -60,6 +60,7 @@ function reducer(state: LoomState, action: LoomAction): LoomState {
                 }
             }
             break;
+        // create a new SET_TREADLINGINSTRUCTIONS action
         case LoomActionType.SET_HARNESSCOUNT:
             if (action.harnessCount > stateCopy.harnesses.length) {
                 while (stateCopy.harnesses.length < action.harnessCount) {
