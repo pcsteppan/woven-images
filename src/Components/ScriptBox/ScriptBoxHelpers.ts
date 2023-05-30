@@ -1,4 +1,5 @@
-import { LoomAction, LoomActionType } from "../../types";
+import { MarkovChain } from "../../Filters/filters";
+import { LoomAction, LoomActionType, LoomState, Treadle } from "../../types";
 
 export function createScriptCallHandler<T>(
 	state: T,
@@ -39,5 +40,18 @@ const editorContext = {
 	},
 	shiftLeft: (arr: Array<number>): Array<number> => {
 		return [...arr.slice(1), arr[0]];
+	},
+	markovStep: (state: LoomState, size: number = 2): Array<Treadle> => {
+		const data = state.treadlingInstructions.map(instruction => state.treadles.findIndex(treadle => treadle === instruction));
+		const markovChain = new MarkovChain(data, 2);
+
+		console.log(markovChain);
+		const finalData = data.slice(data.length-size)
+		console.log(finalData);
+		const markovTreadlingIndices = [...(data.slice(0,data.length-2)), ...markovChain.walk(10, finalData)];
+
+		const markovTreadling = markovTreadlingIndices.map(i => state.treadles[i]);
+
+		return markovTreadling;
 	}
 }
