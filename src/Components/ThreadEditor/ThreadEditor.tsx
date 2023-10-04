@@ -32,7 +32,7 @@ export const ThreadEditor = (props: ThreadEditorProps) => {
     }
 
     const threadItems = props.indexedThreadPalette.threadPalette.map((threadDataSource, i) => {
-        const classes = "Thread" + ((i == props.indexedThreadPalette.selectedIndex) ? " selected" : "");
+        const classes = "Thread" + (i.toString() === props.indexedThreadPalette.selectedIndex.toString() ? " selected" : "");
         // console.log(threadDataSource.color);
         return <div className={classes}
             id={"thread-" + i.toString()}
@@ -50,9 +50,11 @@ export const ThreadEditor = (props: ThreadEditorProps) => {
                         onClick={handleAddThreadOnClick}>+</button>
                 </div>
                 <div className="ThreadAttributeDesigner">
-                    <input className="ColorPicker" type="color" id="ColorPicker" onChange={handleColorPickerOnChange}></input>
+                    <label>edit selected color:
+                        <input className="ColorPicker" type="color" id="ColorPicker" value={props.indexedThreadPalette.threadPalette[props.indexedThreadPalette.selectedIndex].color} onChange={handleColorPickerOnChange}></input>
+                    </label>
                 </div>
-                <button className="LockBtn" onClick={togglePaletteLock}>{paletteLock ? "Unlock Palette" : "Lock Palette"}</button>
+                {/* <button className="LockBtn" onClick={togglePaletteLock}>{paletteLock ? "Unlock Palette" : "Lock Palette"}</button> */}
             </div>
         </div>
     )
